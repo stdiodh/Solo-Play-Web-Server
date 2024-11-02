@@ -36,3 +36,6 @@ services:
 
 networks:
   solo_play_net: {}
+
+volumes:
+  solo-play-db-volume:

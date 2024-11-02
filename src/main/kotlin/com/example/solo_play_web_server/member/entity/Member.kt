@@ -5,6 +5,9 @@ import jakarta.persistence.*
 import java.time.LocalDate
 
 @Entity
+@Table(
+    uniqueConstraints = [UniqueConstraint(name = "uk_member_email", columnNames = ["email"])]
+)
 class Member (
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

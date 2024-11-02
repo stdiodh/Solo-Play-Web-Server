@@ -1,13 +1,14 @@
 services:
   # MySQL 서비스 정의
   db:
-    image: mysql:latest  # MySQL 이미지 및 버전
+    image: mysql:8.0  # MySQL 이미지 및 버전
     container_name: mysql-container  # 컨테이너 이름
     environment:
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}  # db 사용자 비밀번호
       MYSQL_DATABASE: ${DB}  # 생성할 기본 데이터베이스 이름
       MYSQL_USER: ${DB_USER}  # 일반 사용자 이름
       MYSQL_PASSWORD: ${DB_PASSWORD}  # 일반 사용자 비밀번호
+    restart: on-failure
     ports:
       - "${DB_PORT}:${DB_PORT}"  # DB 서버 포트 연결
     volumes:

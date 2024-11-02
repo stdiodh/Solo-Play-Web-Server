@@ -1,9 +1,7 @@
-version: '3.8'  # Docker Compose 버전 설정
-
 services:
   # MySQL 서비스 정의
   db:
-    image: mysql:8.0  # MySQL 이미지 및 버전
+    image: mysql:latest  # MySQL 이미지 및 버전
     container_name: mysql-container  # 컨테이너 이름
     environment:
       MYSQL_ROOT_PASSWORD:   # db 사용자 비밀번호
@@ -38,4 +36,4 @@ networks:
   solo_play_net: {}
 
 volumes:
-  solo-play-db-volume:
+  mysql_data:

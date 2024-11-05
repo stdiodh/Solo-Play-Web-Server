@@ -34,9 +34,9 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 	// 사용자 관리를 위한 Spring security 라이브러리
 	implementation("org.springframework.boot:spring-boot-starter-security")
-	//단위테스트를 위한 mockkup 라이브러리
-	testImplementation("io.mockk:mockk:1.13.11")
-	//단위 테스트를 위한 mockkbean 라이브러리
+	//단위테스트를 위한 springmockk 라이브러리
+	testImplementation("com.ninja-squad:springmockk:4.0.2")
+	//단위 테스트를 위한 mockk 라이브러리
 	testImplementation("io.mockk:mockk:1.12.8")
 	//jjwp Token을 사용하기 위한 라이브러리
 	implementation("io.jsonwebtoken:jjwt-api:0.12.5")

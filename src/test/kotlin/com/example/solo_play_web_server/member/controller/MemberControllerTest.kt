@@ -1,5 +1,5 @@
 package com.example.solo_play_web_server.member.controller
-/**
+
 import com.example.solo_play_web_server.member.dto.SignUpDto
 import com.example.solo_play_web_server.member.service.MemberService
 import io.mockk.every
@@ -11,10 +11,10 @@ import com.ninjasquad.springmockk.MockkBean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @WebMvcTest(MemberController::class)
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class MemberControllerTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -30,9 +30,8 @@ class MemberControllerTest {
         every { memberService.signup(signUpDto) } returns "회원가입이 완료되었습니다!"
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/member/signup")
-            .content("{\"email\":\"test@test.com\", \"password\":\"test1234!@#\", \"nickName\":\"test\", \"gender\":\"MAN\", \"birthday\":\"2024-11-04\", \"imageUrl\":\"test\"}")
+            .content("{\"email\": \"test@test.com\",\"password\": \"test1234!@#\",\"nickName\": \"test\",\"gender\": \"MAN\",\"birthday\": \"2024-11-04\",\"imageUrl\": \"test\"}")
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isCreated)
     }
 }
- **/

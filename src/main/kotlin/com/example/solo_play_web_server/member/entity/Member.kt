@@ -1,34 +1,31 @@
 package com.example.solo_play_web_server.member.entity
 
 import com.example.solo_play_web_server.common.enums.Gender
-import jakarta.persistence.*
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Column
+import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDate
 
-@Entity
-@Table(
-    uniqueConstraints = [UniqueConstraint(name = "uk_member_email", columnNames = ["email"])]
-)
-class Member (
+@Table("member")
+data class Member (
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    var id : Long?,
+    var id : Long? = null,
 
-    @Column(nullable = false, updatable = false, length = 100)
+    @Column
     var email : String,
 
-    @Column(nullable = false, length = 100)
+    @Column
     var password : String,
 
-    @Column(nullable = false, length = 30)
+    @Column("nick_name")
     var nickName : String,
 
-    @Column(nullable = false, length = 5)
-    @Enumerated(EnumType.STRING)
+    @Column
     var gender : Gender,
 
-    @Column(nullable = false, length = 30)
+    @Column
     var birthday : LocalDate,
 
-    @Column(nullable = false, length = 1000)
+    @Column("image_url")
     var imageUrl : String,
 )

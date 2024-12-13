@@ -2,13 +2,16 @@ package com.example.solo_play_web_server.member.service
 
 import com.example.solo_play_web_server.member.dto.SignUpDto
 import com.example.solo_play_web_server.member.repository.MemberRepository
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
-class MemberService(
+class MemberService @Autowired constructor(
     private val memberRepository: MemberRepository,
 ){
-    fun signup(signUpDto : SignUpDto) : String {
+    @Transactional
+    suspend fun signup(signUpDto: SignUpDto): String{
         val member = memberRepository.findByEmail(signUpDto.email)
 
         if(member != null){

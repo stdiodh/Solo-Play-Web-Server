@@ -19,7 +19,6 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -27,9 +26,6 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-	// JpaRepository를 사용하기 위한 라이브러리
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	// OpenAPI 3 문서화 및 Swagger UI 제공을 위한 라이브러리
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 	// 사용자 관리를 위한 Spring security 라이브러리

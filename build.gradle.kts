@@ -19,28 +19,7 @@ repositories {
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	runtimeOnly("com.mysql:mysql-connector-j")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-	// OpenAPI 3 문서화 및 Swagger UI 제공을 위한 라이브러리
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
-	// 사용자 관리를 위한 Spring security 라이브러리
-	implementation("org.springframework.boot:spring-boot-starter-security")
-	//단위테스트를 위한 springmockk 라이브러리
-	testImplementation("com.ninja-squad:springmockk:4.0.2")
-	//단위 테스트를 위한 mockk 라이브러리
-	testImplementation("io.mockk:mockk:1.12.8")
-	//jjwp Token을 사용하기 위한 라이브러리
-	implementation("io.jsonwebtoken:jjwt-api:0.12.5")
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
-	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
-	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
-
-
+	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -48,16 +27,21 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	runtimeOnly("io.asyncer:r2dbc-mysql:1.3.0")
+
 	// 테스트 용 의존성 추가
 	testRuntimeOnly("com.h2database:h2")
 	testRuntimeOnly("io.r2dbc:r2dbc-h2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.projectreactor:reactor-test")
-	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+	testImplementation("io.kotest:kotest-runner-junit5-jvm:6.0.0.M1")
+	testImplementation("io.kotest:kotest-assertions-core-jvm:6.0.0.M1")
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
-	testImplementation("com.ninja-squad:springmockk:4.0.2")
 	testImplementation("io.mockk:mockk:1.13.13")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+	// swager
+	implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
 }
 
 kotlin {

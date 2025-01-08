@@ -36,4 +36,16 @@ class PalaceService @Autowired constructor(
         val result = palaceRepository.save(entityToSave)
         return PalaceResponseDto.fromEntity(result)
     }
+
+    /**
+     * 코스 삭제하기
+     */
+
+    @Transactional
+    suspend fun deletePalace(id: Long) : String {
+        val palace = palaceRepository.findById(id) ?: return "ID $id 에 해당하는 코스를 찾을 수 없습니다."
+
+        palaceRepository.deleteById(id)
+        return "코스가 성공적으로 삭제되었습니다."
+    }
 }

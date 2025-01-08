@@ -1,5 +1,6 @@
 package com.example.solo_play_web_server.course.controller
 
+import com.example.solo_play_web_server.common.dtos.BaseResponse
 import com.example.solo_play_web_server.course.dtos.PalaceRequestDto
 import com.example.solo_play_web_server.course.dtos.PalaceResponseDto
 import com.example.solo_play_web_server.course.service.PalaceService
@@ -7,7 +8,9 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -39,5 +42,15 @@ class PalaceController(
     {
         val result = palaceService.savePalace(palaceRequestDto)
         return ResponseEntity.status(HttpStatus.CREATED).body(result)
+    }
+
+    /**
+     * 코스 삭제하기 Api
+     */
+    @Operation(description = "코스 삭제 Api")
+    @DeleteMapping("/{id}")
+    private suspend fun deleteCourse(@PathVariable id: Long): ResponseEntity<BaseResponse<String>> {
+        val result = palaceService.deletePalace(id)
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse(data = result))
     }
 }

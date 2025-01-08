@@ -1,0 +1,18 @@
+spring:
+  web:
+    resources:
+      add-mappings: false
+
+  sql:
+    init:
+      mode: always
+
+  data:
+    r2dbc:
+      repositories:
+        enabled: true
+
+  r2dbc:
+    url: r2dbc:h2:mem:///testdb;MODE=MySQL
+    username: sa
+    password:

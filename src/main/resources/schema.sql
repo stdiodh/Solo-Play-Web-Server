@@ -1,8 +1,13 @@
-CREATE TABLE IF NOT EXISTS palace (
+CREATE TABLE IF NOT EXISTS course (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    area VARCHAR(255) NOT NULL,
-    address VARCHAR(255) NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    create_at TIMESTAMP(6) NOT NULL,
-    urls VARCHAR(255) NOT NULL
+    user_id BIGINT NOT NULL,
+    create_at DATE NOT NULL,
+    likes_count INT NOT NULL,
+    region VARCHAR(255) NOT NULL,
+    category VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content VARCHAR(255) NOT NULL,
+    place BIGINT NOT NULL,
+    post BIGINT NOT NULL,
+    review BIGINT NOT NULL
 );

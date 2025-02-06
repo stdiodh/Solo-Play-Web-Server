@@ -2,6 +2,9 @@ package com.example.solo_play_web_server.course.service
 
 import com.example.solo_play_web_server.course.dtos.CourseRequestDto
 import com.example.solo_play_web_server.course.dtos.CourseResponseDto
+import com.example.solo_play_web_server.course.dtos.CourseWithPlacesResponseDto
+import com.example.solo_play_web_server.course.entity.CoursePlace
+import com.example.solo_play_web_server.course.repository.CoursePlaceRepository
 import com.example.solo_play_web_server.course.repository.CourseRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -9,7 +12,8 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CourseService @Autowired constructor(
-    private val courseRepository: CourseRepository
+    private val courseRepository: CourseRepository,
+    private val coursePlaceRepository: CoursePlaceRepository
 ) {
 
     /**
@@ -19,7 +23,10 @@ class CourseService @Autowired constructor(
     @Transactional
     suspend fun getAllCourses(): List<CourseResponseDto> {
         val courses = courseRepository.findAllCourses()
-        return courses.map { it.toResponse() }
+        return courses.map { course ->
+            val placeIds = coursePlaceRepository.findPlacesByCourseId(course.id!!)
+            course.toResponse(placeIds)
+        }
     }
 
     /**
@@ -29,8 +36,9 @@ class CourseService @Autowired constructor(
      */
     @Transactional
     suspend fun getCourseById(id: Long): CourseResponseDto? {
-        val course = courseRepository.findById(id)
-        return course?.toResponse()
+        val course = courseRepository.findById(id) ?: return null
+        val placeIds = coursePlaceRepository.findPlacesByCourseId(id)
+        return course.toResponse(placeIds)
     }
 
     /**
@@ -40,9 +48,40 @@ class CourseService @Autowired constructor(
      */
     @Transactional
     suspend fun createCourse(courseRequestDto: CourseRequestDto): CourseResponseDto {
-        val course = courseRequestDto.toEntity()
-        val savedCourse = courseRepository.save(course)
-        return savedCourse.toResponse()
+        // 'place' 필드는 제외하고 course 생성
+        val course = courseRepository.save(courseRequestDto.toEntity())
+
+        // course_place 테이블에 관련 장소 ID 저장
+        courseRequestDto.places.forEach { placeId ->
+            coursePlaceRepository.save(CoursePlace(courseId = course.id!!, placeId = placeId))
+        }
+
+        return course.toResponse(courseRequestDto.places)
+    }
+
+    /**
+     * 특정 코스를 장소와 함께 조회하는 메서드
+     * @param courseId 코스 ID
+     * @return CourseWithPlacesResponseDto - 장소 목록을 포함한 코스 데이터
+     */
+    @Transactional
+    suspend fun getCourseWithPlaces(courseId: Long): CourseWithPlacesResponseDto {
+        val course = courseRepository.findById(courseId) ?: throw Exception("코스를 찾을 수 없습니다.")
+        val placeIds = coursePlaceRepository.findPlacesByCourseId(courseId)
+
+        return CourseWithPlacesResponseDto(
+            id = course.id!!,
+            userId = course.userId,
+            createAt = course.createAt,
+            like = course.like,
+            region = course.region,
+            category = course.category,
+            title = course.title,
+            content = course.content,
+            places = placeIds,  // ✅ 장소 ID 리스트 반영
+            post = course.post,
+            review = course.review
+        )
     }
 
     /**
@@ -54,9 +93,20 @@ class CourseService @Autowired constructor(
     @Transactional
     suspend fun updateCourse(id: Long, courseRequestDto: CourseRequestDto): CourseResponseDto? {
         val existingCourse = courseRepository.findById(id) ?: return null
+
+        // 기존 장소 데이터 삭제
+        coursePlaceRepository.deleteByCourseId(id)
+
+        // 새로운 장소 ID 저장
+        courseRequestDto.places.forEach { placeId ->
+            coursePlaceRepository.save(CoursePlace(courseId = id, placeId = placeId))
+        }
+
+        // 코스 정보 업데이트
         val updatedCourse = courseRequestDto.toEntity().copy(id = existingCourse.id)
         val savedCourse = courseRepository.save(updatedCourse)
-        return savedCourse.toResponse()
+
+        return savedCourse.toResponse(courseRequestDto.places)
     }
 
     /**
@@ -67,7 +117,13 @@ class CourseService @Autowired constructor(
     @Transactional
     suspend fun deleteCourse(id: Long): String {
         val course = courseRepository.findById(id) ?: return "ID $id 에 해당하는 코스를 찾을 수 없습니다."
+
+        // 중간 테이블에서 해당 코스와 연관된 장소 데이터 삭제
+        coursePlaceRepository.deleteByCourseId(id)
+
+        // 코스 삭제
         courseRepository.deleteById(id)
+
         return "코스가 성공적으로 삭제되었습니다."
     }
 }

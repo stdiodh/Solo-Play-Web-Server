@@ -30,8 +30,8 @@ data class CourseRequestDto(
     @JsonProperty("content")
     private var _content: String,
 
-    @JsonProperty("place")
-    private var _place: Long,
+    @JsonProperty("places")
+    private var _places: List<Long>,
 
     @JsonProperty("post")
     private var _post: Long,
@@ -60,8 +60,8 @@ data class CourseRequestDto(
     val content: String
         get() = _content
 
-    val place: Long
-        get() = _place
+    val places: List<Long>
+        get() = _places
 
     val post: Long
         get() = _post
@@ -77,7 +77,6 @@ data class CourseRequestDto(
         category = category,
         title = title,
         content = content,
-        place = place,
         post = post,
         review = review
     )
@@ -95,7 +94,21 @@ data class CourseResponseDto(
     val category: String,
     val title: String,
     val content: String,
-    val place: Long,
+    val places: List<Long>,
+    val post: Long,
+    val review: Long
+)
+
+data class CourseWithPlacesResponseDto(
+    val id: Long,
+    val userId: Long,
+    val createAt: LocalDate,
+    val like: Int,
+    val region: Region,
+    val category: String,
+    val title: String,
+    val content: String,
+    val places: List<Long>,  // 장소 ID 리스트 포함
     val post: Long,
     val review: Long
 )

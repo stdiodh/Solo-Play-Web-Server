@@ -35,16 +35,13 @@ data class Course(
     @Column
     var content: String,
 
-    @Column("place")
-    var place: Long,
-
     @Column("post")
     var post: Long,
 
     @Column("review")
     var review: Long
 ) {
-    fun toResponse(): CourseResponseDto = CourseResponseDto(
+    fun toResponse(placeIds: List<Long>): CourseResponseDto = CourseResponseDto(
         id = id!!,
         userId = userId,
         createAt = createAt,
@@ -53,7 +50,7 @@ data class Course(
         category = category,
         title = title,
         content = content,
-        place = place,
+        places = placeIds,
         post = post,
         review = review
     )

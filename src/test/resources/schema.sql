@@ -7,7 +7,22 @@ CREATE TABLE IF NOT EXISTS course (
     category VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
     content VARCHAR(255) NOT NULL,
-    place BIGINT NOT NULL,
     post BIGINT NOT NULL,
     review BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS place (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    region VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    urls VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS course_place (
+    course_id BIGINT UNSIGNED NOT NULL,
+    place_id BIGINT UNSIGNED NOT NULL,
+    FOREIGN KEY (course_id) REFERENCES course(id) ON DELETE CASCADE,
+    FOREIGN KEY (place_id) REFERENCES place(id) ON DELETE CASCADE,
+    PRIMARY KEY (course_id, place_id)
 );

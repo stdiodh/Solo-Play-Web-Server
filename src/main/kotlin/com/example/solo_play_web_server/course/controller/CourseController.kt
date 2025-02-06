@@ -83,4 +83,26 @@ class CourseController(
         val result = courseService.deleteCourse(id)
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse(result))
     }
+
+    /**
+     * 상위 10위 추천 코스를 조회하는 API
+     * @return ResponseEntity<BaseResponse<List<CourseResponseDto>>> - 추천 코스 상위 10개 리스트 반환
+     */
+    @Operation(summary = "상위 10위 추천 코스 조회", description = "추천 코스 상위 10개를 조회합니다.")
+    @GetMapping("/recommended")
+    suspend fun getTop10RecommendedCourses(): ResponseEntity<BaseResponse<List<CourseResponseDto>>> {
+        val result = courseService.getTop10RecommendedCourses()
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse(result))
+    }
+
+    /**
+     * 오늘 가장 좋아요를 많이 받은 코스를 조회하는 API
+     * @return ResponseEntity<BaseResponse<List<CourseResponseDto>>> - 오늘 가장 좋아요를 많이 받은 코스 리스트 반환
+     */
+    @Operation(summary = "오늘 가장 좋아요를 많이 받은 코스 조회", description = "오늘 좋아요를 많이 받은 코스들을 조회합니다.")
+    @GetMapping("/top-liked-today")
+    suspend fun getTopLikedCoursesToday(): ResponseEntity<BaseResponse<List<CourseResponseDto>>> {
+        val result = courseService.getTopLikedCoursesToday()
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse(result))
+    }
 }

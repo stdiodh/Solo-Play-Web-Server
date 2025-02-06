@@ -9,6 +9,7 @@ import com.example.solo_play_web_server.course.repository.CourseRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 
 @Service
 class CourseService @Autowired constructor(
@@ -78,7 +79,7 @@ class CourseService @Autowired constructor(
             category = course.category,
             title = course.title,
             content = course.content,
-            places = placeIds,  // ✅ 장소 ID 리스트 반영
+            places = placeIds,
             post = course.post,
             review = course.review
         )
@@ -125,5 +126,40 @@ class CourseService @Autowired constructor(
         courseRepository.deleteById(id)
 
         return "코스가 성공적으로 삭제되었습니다."
+    }
+
+    /**
+     * 상위 10위 추천 코스 리스트를 반환하는 메서드
+     * @return List<CourseResponseDto> - 추천 코스 상위 10개 리스트
+     */
+    suspend fun getTop10RecommendedCourses(): List<CourseResponseDto> {
+        // 추천 코스 상위 10개 조회
+        val courses = courseRepository.findTop10RecommendedCourses()
+
+        // 각 코스를 CourseResponseDto로 변환 후 반환
+        return courses.map { course ->
+            // 장소 ID들을 가져와서 toResponse 메서드에 전달
+            val placeIds = coursePlaceRepository.findPlacesByCourseId(course.id!!)
+            course.toResponse(placeIds)
+        }
+    }
+
+    /**
+     * 오늘 가장 좋아요를 많이 받은 코스 리스트를 반환하는 메서드
+     * @return List<CourseResponseDto> - 오늘 좋아요를 많이 받은 코스 리스트
+     */
+    suspend fun getTopLikedCoursesToday(): List<CourseResponseDto> {
+        // 오늘 날짜를 가져옴
+        val today = LocalDate.now()
+
+        // 오늘 좋아요를 많이 받은 코스들 조회
+        val courses = courseRepository.findTopLikedCoursesToday(today)
+
+        // 각 코스를 CourseResponseDto로 변환 후 반환
+        return courses.map { course ->
+            // 장소 ID들을 가져와서 toResponse 메서드에 전달
+            val placeIds = coursePlaceRepository.findPlacesByCourseId(course.id!!)
+            course.toResponse(placeIds)
+        }
     }
 }

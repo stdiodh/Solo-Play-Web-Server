@@ -1,5 +1,8 @@
 package com.example.solo_play_web_server.course.enums
 
+/**
+ * 서울권 지역을 분리하기 위한 Enum Class
+ */
 enum class Region(val desc: String) {
     downtown("도심권"),
     gangbuk("강북권"),

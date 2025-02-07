@@ -21,6 +21,4 @@ data class Place (
 
     @Column
     val urls : String,
-) {
-
-}
+)

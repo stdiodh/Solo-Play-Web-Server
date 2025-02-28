@@ -15,7 +15,7 @@ class PlaceService(
     /**
      * 장소를 생성하는 메소드
      */
-    fun createPlace(requestDto: PlaceRequestDTO): Mono<Place> {
+    suspend fun createPlace(requestDto: PlaceRequestDTO): Mono<Place> {
         val place = requestDto.toEntity()
         return placeRepository.save(place)
     }
@@ -23,28 +23,28 @@ class PlaceService(
     /**
      * 전체 장소를 조회하는 메소드
      */
-    fun getAllPlaces(): Flux<Place> {
+    suspend fun getAllPlaces(): Flux<Place> {
         return placeRepository.findAll()
     }
 
     /**
      * 특정 지역에 해당하는 장소를 조회하는 메소드
      */
-    fun getPlacesByRegion(region: Region): Flux<Place> {
+    suspend fun getPlacesByRegion(region: Region): Flux<Place> {
         return placeRepository.findByRegion(region.name)
     }
 
     /**
      * 장소 이름을 통해 장소들을 검색하는 메소드
      */
-    fun getPlacesByName(name: String): Flux<Place> {
+    suspend fun getPlacesByName(name: String): Flux<Place> {
         return placeRepository.findByNameContaining(name)
     }
 
     /**
      * 장소 ID를 통해 삭제하는 메소드
      */
-    fun deletePlace(id: String): Mono<Void> {
+    suspend fun deletePlace(id: String): Mono<Void> {
         return placeRepository.deleteById(id)
     }
 }

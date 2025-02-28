@@ -23,7 +23,7 @@ class PlaceController(
 ) {
     @Operation(summary = "장소 생성", description = "특정 지역에 장소를 생성합니다.")
     @PostMapping
-    fun createPlace(@Valid @RequestBody placeRequestDto: PlaceRequestDTO): Mono<ResponseEntity<BaseResponse<Place>>> {
+    private suspend fun createPlace(@Valid @RequestBody placeRequestDto: PlaceRequestDTO): Mono<ResponseEntity<BaseResponse<Place>>> {
         return placeService.createPlace(placeRequestDto)
             .map { place ->
                 ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse(data = place))
@@ -33,7 +33,7 @@ class PlaceController(
 
     @Operation(summary = "모든 장소 조회", description = "모든 장소를 조회합니다.")
     @GetMapping
-    fun getAllPlaces(): Flux<ResponseEntity<BaseResponse<Place>>> {
+    private suspend fun getAllPlaces(): Flux<ResponseEntity<BaseResponse<Place>>> {
         return placeService.getAllPlaces()
             .map { place ->
                 ResponseEntity.status(HttpStatus.OK).body(BaseResponse(data = place))
@@ -42,7 +42,7 @@ class PlaceController(
 
     @Operation(summary = "지역별 장소 조회", description = "특정 지역의 장소들을 조회합니다.")
     @GetMapping("/{region}")
-    fun getPlaceByRegion(
+    private suspend fun getPlaceByRegion(
         @Parameter(description = "지역 정보") @PathVariable region: Region
     ): Mono<ResponseEntity<BaseResponse<List<Place>>>> {
         return placeService.getPlacesByRegion(region)
@@ -54,7 +54,7 @@ class PlaceController(
 
     @Operation(summary = "장소 이름으로 검색", description = "장소의 이름을 통해 장소를 검색합니다.")
     @GetMapping("/search")
-    fun getPlaceByName(
+    private suspend fun getPlaceByName(
         @RequestParam name: String
     ): Mono<ResponseEntity<BaseResponse<List<Place>>>> {
         return placeService.getPlacesByName(name)
@@ -66,7 +66,7 @@ class PlaceController(
 
     @Operation(summary = "장소 삭제", description = "장소 ID를 통해 장소를 삭제합니다.")
     @DeleteMapping("/{id}")
-    fun deletePlace(
+    private suspend fun deletePlace(
         @Parameter(description = "장소 ID") @PathVariable id: String
     ): Mono<ResponseEntity<BaseResponse<String>>> {
         return placeService.deletePlace(id)

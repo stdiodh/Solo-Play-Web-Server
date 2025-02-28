@@ -9,7 +9,7 @@ import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import org.springframework.web.servlet.NoHandlerFoundException
+import org.springframework.web.bind.support.WebExchangeBindException
 
 @Order(value = 2)
 @RestControllerAdvice
@@ -44,8 +44,8 @@ class CommonExceptionHandler {
     }
 
     // NoHandlerFoundException 처리
-    @ExceptionHandler(NoHandlerFoundException::class)
-    protected fun notFoundApiUrlExceptionHandler(exception: NoHandlerFoundException):
+    @ExceptionHandler(WebExchangeBindException::class)
+    protected fun notFoundApiUrlExceptionHandler(exception: WebExchangeBindException):
             ResponseEntity<BaseResponse<Any>> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
             BaseResponse(status = ResultStatus.ERROR.name, resultMsg = "존재하지 않는 API URL 입니다.")

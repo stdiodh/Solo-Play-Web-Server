@@ -5,6 +5,6 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
 
 interface PlaceRepository : ReactiveMongoRepository<Place, String> {
-    fun findByRegion(region: String): Flux<Place>
-    fun findByNameContaining(name: String): Flux<Place>
+    suspend fun findByRegion(region: String): Flux<Place>
+    suspend fun findByNameContaining(name: String): Flux<Place>
 }

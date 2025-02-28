@@ -1,24 +1,14 @@
 package com.example.solo_play_web_server.course.entity
 
-import com.example.solo_play_web_server.course.enums.Region
 import org.springframework.data.annotation.Id
-import org.springframework.data.relational.core.mapping.Column
-import org.springframework.data.relational.core.mapping.Table
+import org.springframework.data.mongodb.core.mapping.Document
 
-@Table("place")
-data class Place (
+@Document(collection = "place")
+data class Place(
     @Id
-    val id : Long? = null,
-
-    @Column
-    val name : String,
-
-    @Column
-    val region : Region,
-
-    @Column
-    val description : String,
-
-    @Column
-    val urls : String,
+    val id: String? = null,
+    val name: String,
+    val region: String,
+    val description: String,
+    val urls: List<String>
 )

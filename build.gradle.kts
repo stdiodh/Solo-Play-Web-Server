@@ -20,13 +20,11 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
-	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-	runtimeOnly("io.asyncer:r2dbc-mysql:1.3.0")
 
 	// 테스트 용 의존성 추가
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
@@ -41,9 +39,12 @@ dependencies {
 	testImplementation("io.projectreactor:reactor-test:3.7.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 
-	// swager
-	implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0")
-	implementation("org.springframework.boot:spring-boot-starter-validation")
+	// swaager
+	implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.3.0")
+
+	// Spring Boot MongoDB Reactive 지원
+	implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+
 }
 
 kotlin {

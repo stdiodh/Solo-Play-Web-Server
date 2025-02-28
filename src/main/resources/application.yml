@@ -4,19 +4,14 @@ spring:
   config:
     import: optional:file:.env[.properties]
 
-  sql:
-    init:
-      mode: always
-
-  r2dbc:
-    url: ${MYSQL_URL}
-    username: ${MYSQL_USER}
-    password: ${MYSQL_PASSWORD}
+  # r2dbc:
+  #   url: ${MYSQL_URL}
+  #   username: ${MYSQL_USER}
+  #   password: ${MYSQL_PASSWORD}
 
   data:
-    r2dbc:
-      repositories:
-        enabled: true
+    mongodb:
+      uri: mongodb://${DB_USER}:${DB_PASSWORD}@${DB_URL}:${DB_PORT}/${DB}?authSource=admin
 
 springdoc:
   swagger-ui:

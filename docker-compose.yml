@@ -1,0 +1,38 @@
+services:
+  # MySQL 서비스 정의
+  mysql:
+    image: mysql:8.0  # MySQL 이미지 및 버전
+    container_name: mysql-container  # 컨테이너 이름
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}  # db 사용자 비밀번호
+      MYSQL_DATABASE: ${DB}  # 생성할 기본 데이터베이스 이름
+      MYSQL_USER: ${DB_USER}  # 일반 사용자 이름
+      MYSQL_PASSWORD: ${DB_PASSWORD}  # 일반 사용자 비밀번호
+    restart: on-failure
+    volumes:
+      - mysql_data:/var/lib/mysql  # MySQL 데이터를 저장할 볼륨 정의
+
+
+  # Spring Boot 서비스 정의
+  app:
+    image: ${IMAGE_NAME}  # 빌드된 Spring Boot Docker 이미지
+    container_name: solo-play-server-container  # 컨테이너 이름
+    depends_on:
+      - mysql  # db 서비스가 준비된 후에 실행되도록 설정
+    environment:
+      MYSQL_URL: r2dbc:pool:mysql://mysql-container:3306/${DB}?autoReconnect=true&useUnicode=true&serverTimezone=Asia/Seoul  # MySQL 연결 URL
+      MYSQL_USER: ${DB_USER}  # 데이터베이스 사용자 이름
+      MYSQL_PASSWORD: ${DB_PASSWORD}  # 데이터베이스 사용자 비밀번호
+    ports:
+      - "8080:${SERVER_PORT}"  # 포트 연결
+    restart: on-failure
+    networks:
+      - solo_play_net
+
+networks:
+  default:
+    external:
+      solo_play_net
+
+volumes:
+  mysql_data:

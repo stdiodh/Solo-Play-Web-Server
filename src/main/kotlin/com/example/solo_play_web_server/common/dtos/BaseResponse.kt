@@ -1,5 +1,9 @@
 package com.example.solo_play_web_server.common.dtos
 
-data class BaseResponse<T> (
-    val data : T? = null,
+import com.example.solo_play_web_server.common.enum.ResultStatus
+
+data class BaseResponse<T>(
+    var status : String = ResultStatus.SUCCESS.name,
+    var data : T? = null,
+    var resultMsg : String = ResultStatus.SUCCESS.msg,
 )

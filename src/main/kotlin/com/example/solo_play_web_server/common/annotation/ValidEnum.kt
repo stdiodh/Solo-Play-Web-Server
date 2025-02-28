@@ -20,16 +20,16 @@ annotation class ValidEnum(
 class ValidEnumValidator : ConstraintValidator<ValidEnum, Any?> {
     private lateinit var enumValues : Array<out Enum<*>>
 
-    override fun initialize(annotaion: ValidEnum) {
-        enumValues = annotaion.enumClass.java.enumConstants
+    override fun initialize(annotation: ValidEnum) {
+        enumValues = annotation.enumClass.java.enumConstants
     }
 
     override fun isValid(value: Any?, context: ConstraintValidatorContext?): Boolean {
-        // null 또는 blank는 검증하지 않음
+        // null 값을 허용하려면 true를 반환
         if (value == null) {
             return true
         }
-        // enum에 포함되지 않는 값은 false 반환
-        return enumValues.any { it.name == value.toString() }
+        // 대소문자 구분 없이 Enum 값에 존재하는지 확인
+        return enumValues.any { it.name.equals(value.toString(), ignoreCase = true) }
     }
 }

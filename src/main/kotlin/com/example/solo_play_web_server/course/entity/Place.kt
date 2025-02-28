@@ -1,5 +1,6 @@
 package com.example.solo_play_web_server.course.entity
 
+import com.example.solo_play_web_server.course.enums.Region
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 
@@ -8,7 +9,7 @@ data class Place(
     @Id
     val id: String? = null,
     val name: String,
-    val region: String,
+    val region: Region,
     val description: String,
     val urls: List<String>
 )

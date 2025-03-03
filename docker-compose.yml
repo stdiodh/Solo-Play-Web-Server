@@ -9,6 +9,8 @@ services:
     restart: on-failure
     volumes:
       - mongodb-volume:/data/db # 데이터를 저장할 볼륨 정의
+    networks:
+      - solo_play_net
 
 
   # Spring Boot 서비스 정의
@@ -24,9 +26,8 @@ services:
       - solo_play_net
 
 networks:
-  default:
-    external:
-      solo_play_net
+  solo_play_net:
+    external: true
 
 volumes:
-  mongodb_data:
+  mongodb-volume:

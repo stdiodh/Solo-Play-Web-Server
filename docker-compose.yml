@@ -8,7 +8,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${ROOT_PASSWORD}
     restart: on-failure
     volumes:
-      - mongodb_data:/var/lib/mongodb  # 데이터를 저장할 볼륨 정의
+      - mongodb-volume:/data/db # 데이터를 저장할 볼륨 정의
 
 
   # Spring Boot 서비스 정의

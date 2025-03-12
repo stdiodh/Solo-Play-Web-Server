@@ -17,20 +17,22 @@ services:
   app:
     image: ${IMAGE_NAME}  # 빌드된 Spring Boot Docker 이미지
     container_name: solo-play-server-container  # 컨테이너 이름
-    depends_on:
-      - mongodb  # db 서비스가 준비된 후에 실행되도록 설정
     environment:
       MONGO_DB_NAME: ${DB_NAME}
       MONGO_DB_URL: ${DB_URL}
       MONGO_PORT: ${DB_PORT}
-    restart: on-failure
+
+    depends_on:
+      - mongodb
     networks:
       - solo_play_net
+    ports:
+      - "8080:8080"
 
 volumes:
   mongodb_data:
 
 networks:
-  aandi_net:
-    name: aandi_net
+  solo_play_net:
+    name: solo_play_net
     external: true

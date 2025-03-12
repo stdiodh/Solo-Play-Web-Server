@@ -1,14 +1,14 @@
 services:
   # MONGODB 서비스 정의
   mongodb:
-    image: mongodb/mongodb-community-server:latest  # MONGODB 이미지 및 버전
-    container_name: mongodb-container  # 컨테이너 이름
+    image: solo-play-mongo  # MONGODB 이미지 및 버전
+    container_name: solo-play-mongodb-container  # 컨테이너 이름
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: ${ROOT_PASSWORD}
     restart: on-failure
     volumes:
-      - mongodb-volume:/data/db # 데이터를 저장할 볼륨 정의
+      - mongodb_data:/var/lib/mongo # 데이터를 저장할 볼륨 정의
     networks:
       - solo_play_net
 
@@ -20,14 +20,17 @@ services:
     depends_on:
       - mongodb  # db 서비스가 준비된 후에 실행되도록 설정
     environment:
-      MONGO_DB_URL: mongodb://${DB_USER}:${DB_PASSWORD}@${DB_URL}:${DB_PORT}/${DB}?authSource=admin  # MongoDB 연결 URL
+      MONGO_DB_NAME: ${DB_NAME}
+      MONGO_DB_URL: ${DB_URL}
+      MONGO_PORT: ${DB_PORT}
     restart: on-failure
     networks:
       - solo_play_net
 
-networks:
-  solo_play_net:
-    external: true
-
 volumes:
-  mongodb-volume:
+  mongodb_data:
+
+networks:
+  aandi_net:
+    name: aandi_net
+    external: true

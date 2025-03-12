@@ -53,6 +53,6 @@ jobs:
           script: |
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPONAME }}:latest
             sudo docker stop solo-play-server-container
-            sudo docker container rm ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPONAME }}
+            sudo docker container rm solo-play-server-container
             sudo docker-compose -f /home/${{ secrets.AWS_USER }}/app/solo-play-web-server/docker-compose.yml up -d
             sudo docker image prune -a -f

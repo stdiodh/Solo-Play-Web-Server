@@ -1,7 +1,7 @@
 services:
   # MONGODB 서비스 정의
   mongodb:
-    image: solo-play-mongo  # MONGODB 이미지 및 버전
+    image: mongo  # MONGODB 이미지 및 버전
     container_name: solo-play-mongodb-container  # 컨테이너 이름
     environment:
       MONGO_INITDB_ROOT_USERNAME: root

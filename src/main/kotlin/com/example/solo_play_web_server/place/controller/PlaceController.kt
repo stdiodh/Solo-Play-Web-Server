@@ -33,6 +33,26 @@ class PlaceController(
             .map { place -> BaseResponse(data = place) }
     }
 
+    // 장소 수정
+    @Operation(summary = "장소 수정", description = "장소 정보를 수정합니다.")
+    @PutMapping("/{id}")
+    private suspend fun updatePlace(
+        @PathVariable id: String,
+        @Valid @RequestBody placeRequestDto: PlaceRequestDTO
+    ): Mono<BaseResponse<Place>> {
+        return placeService.updatePlace(id, placeRequestDto)
+            .map { place -> BaseResponse(data = place) }
+    }
+
+    @Operation(summary = "장소 삭제", description = "장소 ID를 통해 장소를 삭제합니다.")
+    @DeleteMapping("/{id}")
+    private suspend fun deletePlace(
+        @Parameter(description = "장소 ID") @PathVariable id: String
+    ): Mono<BaseResponse<String>> {
+        return placeService.deletePlace(id)
+            .map { BaseResponse(data = "장소 삭제 완료") }
+    }
+
     @Operation(summary = "지역별 장소 조회", description = "특정 지역의 장소들을 조회합니다.")
     @GetMapping("/{region}")
     private suspend fun getPlaceByRegion(
@@ -53,12 +73,17 @@ class PlaceController(
             .map { places -> BaseResponse(data = places) }
     }
 
-    @Operation(summary = "장소 삭제", description = "장소 ID를 통해 장소를 삭제합니다.")
-    @DeleteMapping("/{id}")
-    private suspend fun deletePlace(
+    // 저장됨 수 증가
+    @Operation(summary = "저장됨 수 증가", description = "특정 장소의 저장됨 수를 증가시킵니다.")
+    @PostMapping("/{id}/saved")
+    private suspend fun incrementSaved(
         @Parameter(description = "장소 ID") @PathVariable id: String
-    ): Mono<BaseResponse<String>> {
-        return placeService.deletePlace(id)
-            .map { BaseResponse(data = "장소 삭제 완료") }
+    ): Mono<BaseResponse<Place>> {
+        return placeService.incrementSaved(id)
+            .map { place -> BaseResponse(data = place) }
+            .onErrorResume { e ->
+                // 서비스에서 예외가 발생하면 에러 메시지를 반환
+                Mono.just(BaseResponse(status = "ERROR", resultMsg = e.message ?: "An error occurred"))
+            }
     }
 }

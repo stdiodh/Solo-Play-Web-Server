@@ -2,12 +2,13 @@ package com.example.solo_play_web_server.course.controller
 
 import com.example.solo_play_web_server.common.dtos.BaseResponse
 import com.example.solo_play_web_server.common.enum.ResultStatus
-import com.example.solo_play_web_server.common.exception.place.PlaceNotFoundException
+import com.example.solo_play_web_server.common.exception.CommonNotFoundException
 import com.example.solo_play_web_server.course.dtos.CourseRequestDto
 import com.example.solo_play_web_server.course.entity.Course
 import com.example.solo_play_web_server.course.enums.Category
 import com.example.solo_play_web_server.course.service.CourseService
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
@@ -28,7 +29,7 @@ class CourseController(
                 .map { course ->
                     BaseResponse(data = course)
                 }
-        } catch (e: PlaceNotFoundException) {
+        } catch (e: CommonNotFoundException) {
             Mono.just(
                 BaseResponse(
                     status = ResultStatus.ERROR.name,
@@ -87,5 +88,18 @@ class CourseController(
     private suspend fun deleteCourse(@PathVariable id: String): Mono<BaseResponse<String>> {
         return courseService.deleteCourse(id)
             .then(Mono.just(BaseResponse(data = "코스 삭제 완료")))
+    }
+
+    // 저장됨 수 증가
+    @Operation(summary = "코스 저장됨 수 증가", description = "특정 코스의 저장됨 수를 증가시킵니다.")
+    @PostMapping("/{courseId}/saved")
+    private suspend fun incrementSaved(
+        @Parameter(description = "코스 ID") @PathVariable courseId: String
+    ): Mono<BaseResponse<Course>> {
+        return courseService.incrementSaved(courseId)
+            .map { course -> BaseResponse(data = course) }
+            .onErrorResume { e ->
+                Mono.just(BaseResponse(status = "ERROR", resultMsg = e.message ?: "An error occurred"))
+            }
     }
 }

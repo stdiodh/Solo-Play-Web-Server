@@ -35,18 +35,3 @@ data class CourseRequestDto(
     val post: List<String>?,
     val review: List<String>?
 )
-
-
-data class CourseResponseDto(
-    val id: String?,
-    val userId: String,
-    val title: String,
-    val content: String,
-    val region: Region,
-    val category: Category,
-    val place: List<String>,
-    val post: List<String>?,
-    val review: List<String>?,
-    val like: Int,
-    val createdAt: String
-)

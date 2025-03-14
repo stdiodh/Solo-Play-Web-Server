@@ -26,9 +26,9 @@ data class PlaceRequestDTO(
     private val _urls: List<String>
 ) {
     val name : String
-        get() = _name!!
+        get() = _name
     val region : Region
-        get() = Region.valueOf(_region!!)
+        get() = Region.valueOf(_region)
     val description : String
         get() = _description
     val urls : List<String>
@@ -45,13 +45,3 @@ data class PlaceRequestDTO(
         )
     }
 }
-
-
-data class PlaceResponseDTO(
-    val id: String?,
-    val name: String,
-    val region: Region,
-    val description: String,
-    val urls: List<String>
-)
-

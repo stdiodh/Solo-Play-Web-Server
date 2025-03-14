@@ -2,7 +2,6 @@ package com.example.solo_play_web_server.course.entity
 
 import com.example.solo_play_web_server.course.enums.Category
 import com.example.solo_play_web_server.course.enums.Level
-import com.example.solo_play_web_server.place.entity.Place
 import com.example.solo_play_web_server.place.enums.Region
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
@@ -21,7 +20,6 @@ data class Course(
     val place: List<String>,
     val post: List<String>?,
     val review: List<String>?,
-    val like: Int = 0,
     val saved: Int = 0,
     val createAt: LocalDateTime = LocalDateTime.now()
 )

@@ -1,6 +1,6 @@
 package com.example.solo_play_web_server.course.service
 
-import com.example.solo_play_web_server.common.exception.place.PlaceNotFoundException
+import com.example.solo_play_web_server.common.exception.CommonNotFoundException
 import com.example.solo_play_web_server.course.dtos.CourseRequestDto
 import com.example.solo_play_web_server.course.entity.Course
 import com.example.solo_play_web_server.course.enums.Category
@@ -26,7 +26,7 @@ class CourseService(
             .flatMap { places ->
                 if (places.size != courseRequestDto.place.size) {
                     // 만약 요청된 ID 중 존재하지 않는 Place가 있다면 예외를 발생시킬 수 있음
-                    return@flatMap Mono.error<Course>(PlaceNotFoundException("Some places not found"))
+                    return@flatMap Mono.error<Course>(CommonNotFoundException("장소를 찾지 못했습니다."))
                 }
 
                 // Course 객체 생성 (place는 ID 목록으로 저장)
@@ -77,7 +77,7 @@ class CourseService(
                     .flatMap { places ->
                         // 장소가 하나라도 없으면 예외를 던짐
                         if (places.size != courseRequestDto.place.size) {
-                            return@flatMap Mono.error<Course>(PlaceNotFoundException("Some places not found"))
+                            return@flatMap Mono.error<Course>(CommonNotFoundException("장소를 찾지 못했습니다."))
                         }
 
                         val updatedCourse = existingCourse.copy(
@@ -99,4 +99,15 @@ class CourseService(
     suspend fun deleteCourse(id: String): Mono<Void> {
         return courseRepository.deleteById(id)
     }
+
+    // 저장됨 수 증가
+    suspend fun incrementSaved(courseId: String): Mono<Course> {
+        return courseRepository.findById(courseId)
+            .flatMap { course ->
+                val updatedCourse = course.copy(saved = course.saved + 1)
+                courseRepository.save(updatedCourse)
+            }
+            .switchIfEmpty(Mono.error(CommonNotFoundException("코스 ID $courseId 를 찾지 못했습니다!")))
+    }
+
 }

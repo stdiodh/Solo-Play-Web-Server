@@ -11,5 +11,6 @@ data class Place(
     val name: String,
     val region: Region,
     val description: String,
+    val saved: Int = 0,
     val urls: List<String>
 )

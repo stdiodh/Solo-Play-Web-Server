@@ -1,6 +1,6 @@
 import com.example.solo_play_web_server.common.annotation.ValidEnum
-import com.example.solo_play_web_server.course.entity.Place
-import com.example.solo_play_web_server.course.enums.Region
+import com.example.solo_play_web_server.place.entity.Place
+import com.example.solo_play_web_server.place.enums.Region
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull

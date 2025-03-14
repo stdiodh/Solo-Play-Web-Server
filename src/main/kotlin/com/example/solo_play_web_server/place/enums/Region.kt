@@ -1,4 +1,4 @@
-package com.example.solo_play_web_server.course.enums
+package com.example.solo_play_web_server.place.enums
 
 /**
  * 서울권 지역을 분리하기 위한 Enum Class

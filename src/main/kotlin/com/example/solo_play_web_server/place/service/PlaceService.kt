@@ -1,9 +1,9 @@
-package com.example.solo_play_web_server.course.service
+package com.example.solo_play_web_server.place.service
 
 import PlaceRequestDTO
-import com.example.solo_play_web_server.course.entity.Place
-import com.example.solo_play_web_server.course.enums.Region
-import com.example.solo_play_web_server.course.repository.PlaceRepository
+import com.example.solo_play_web_server.place.entity.Place
+import com.example.solo_play_web_server.place.enums.Region
+import com.example.solo_play_web_server.place.repository.PlaceRepository
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.core.publisher.Flux

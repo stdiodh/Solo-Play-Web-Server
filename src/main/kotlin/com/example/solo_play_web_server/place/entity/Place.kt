@@ -1,6 +1,6 @@
-package com.example.solo_play_web_server.course.entity
+package com.example.solo_play_web_server.place.entity
 
-import com.example.solo_play_web_server.course.enums.Region
+import com.example.solo_play_web_server.place.enums.Region
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 

@@ -1,10 +1,10 @@
-package com.example.solo_play_web_server.course.controller
+package com.example.solo_play_web_server.place.controller
 
 import PlaceRequestDTO
 import com.example.solo_play_web_server.common.dtos.BaseResponse
-import com.example.solo_play_web_server.course.entity.Place
-import com.example.solo_play_web_server.course.enums.Region
-import com.example.solo_play_web_server.course.service.PlaceService
+import com.example.solo_play_web_server.place.entity.Place
+import com.example.solo_play_web_server.place.enums.Region
+import com.example.solo_play_web_server.place.service.PlaceService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag

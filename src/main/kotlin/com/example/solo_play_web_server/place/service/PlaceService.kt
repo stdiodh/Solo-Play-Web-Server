@@ -63,4 +63,11 @@ class PlaceService(
                 placeRepository.save(updatedPlace)
             }
     }
+
+    //저장됨을 기준으로 상위 10개를 가져오는 메서드
+    suspend fun getTop10PlacesBySaved(): Flux<Place> {
+        return placeRepository.findAll()
+            .sort { place1, place2 -> place2.saved.compareTo(place1.saved) }
+            .take(10)
+    }
 }

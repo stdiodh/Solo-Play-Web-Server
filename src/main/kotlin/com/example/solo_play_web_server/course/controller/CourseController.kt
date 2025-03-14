@@ -102,4 +102,11 @@ class CourseController(
                 Mono.just(BaseResponse(status = "ERROR", resultMsg = e.message ?: "An error occurred"))
             }
     }
+
+    @Operation(summary = "저장됨 순위 상위 10개 코스 조회", description = "저장됨 수 기준으로 상위 10개 코스를 조회합니다.")
+    @GetMapping("/top10/saved")
+    private suspend fun getTop10CoursesBySaved(): Flux<BaseResponse<Course>> {
+        return courseService.getTop10CoursesBySaved()
+            .map { course -> BaseResponse(data = course) }
+    }
 }

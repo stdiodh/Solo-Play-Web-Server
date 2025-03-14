@@ -110,4 +110,10 @@ class CourseService(
             .switchIfEmpty(Mono.error(CommonNotFoundException("코스 ID $courseId 를 찾지 못했습니다!")))
     }
 
+    //저장됨을 기준으로 상위 10개를 가져오는 메서드
+    suspend fun getTop10CoursesBySaved(): Flux<Course> {
+        return courseRepository.findAll()
+            .sort { course1, course2 -> course2.saved.compareTo(course1.saved) }
+            .take(10)
+    }
 }

@@ -86,4 +86,11 @@ class PlaceController(
                 Mono.just(BaseResponse(status = "ERROR", resultMsg = e.message ?: "An error occurred"))
             }
     }
+
+    @Operation(summary = "저장됨 순위 상위 10개 장소 조회", description = "저장됨 수 기준으로 상위 10개 장소를 조회합니다.")
+    @GetMapping("/top10/saved")
+    private suspend fun getTop10PlacesBySaved(): Flux<BaseResponse<Place>> {
+        return placeService.getTop10PlacesBySaved()
+            .map { place -> BaseResponse(data = place) }
+    }
 }

@@ -33,7 +33,6 @@ class PlaceController(
             .map { place -> BaseResponse(data = place) }
     }
 
-    // 장소 수정
     @Operation(summary = "장소 수정", description = "장소 정보를 수정합니다.")
     @PutMapping("/{id}")
     private suspend fun updatePlace(
@@ -53,14 +52,24 @@ class PlaceController(
             .map { BaseResponse(data = "장소 삭제 완료") }
     }
 
-    @Operation(summary = "지역별 장소 조회", description = "특정 지역의 장소들을 조회합니다.")
-    @GetMapping("/{region}")
-    private suspend fun getPlaceByRegion(
-        @Parameter(description = "지역 정보") @PathVariable region: Region
+
+    @Operation(summary = "지역에 해당하는 구 목록 조회", description = "특정 지역(zone)에 해당하는 구들을 조회합니다.")
+    @GetMapping("/zone/{zone}/regions")
+    fun getRegionsByZone(
+        @Parameter(description = "지역(zone) 정보") @PathVariable zone: Region.Zone
+    ): Mono<BaseResponse<List<String>>> {
+        val regions = placeService.getRegionsByZone(zone)
+        return Mono.just(BaseResponse(data = regions))
+    }
+
+    @Operation(summary = "구에 해당하는 장소 조회", description = "특정 구(region)에 해당하는 장소들을 조회합니다.")
+    @GetMapping("/region/{region}/places")
+    suspend fun getPlacesByRegion(
+        @Parameter(description = "구(region) 정보") @PathVariable region: String
     ): Mono<BaseResponse<List<Place>>> {
-        return placeService.getPlacesByRegion(region)
+        val places = placeService.getPlacesByRegion(region)
             .collectList()
-            .map { places -> BaseResponse(data = places) }
+        return places.map { BaseResponse(data = it) }
     }
 
     @Operation(summary = "장소 이름으로 검색", description = "장소의 이름을 통해 장소를 검색합니다.")
@@ -73,7 +82,6 @@ class PlaceController(
             .map { places -> BaseResponse(data = places) }
     }
 
-    // 저장됨 수 증가
     @Operation(summary = "저장됨 수 증가", description = "특정 장소의 저장됨 수를 증가시킵니다.")
     @PostMapping("/{id}/saved")
     private suspend fun incrementSaved(
@@ -82,7 +90,6 @@ class PlaceController(
         return placeService.incrementSaved(id)
             .map { place -> BaseResponse(data = place) }
             .onErrorResume { e ->
-                // 서비스에서 예외가 발생하면 에러 메시지를 반환
                 Mono.just(BaseResponse(status = "ERROR", resultMsg = e.message ?: "An error occurred"))
             }
     }

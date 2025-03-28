@@ -14,18 +14,15 @@ import reactor.core.publisher.Flux
 class PlaceService(
     private val placeRepository: PlaceRepository,
 ) {
-    // 장소 생성
     suspend fun createPlace(requestDto: PlaceRequestDTO): Mono<Place> {
         val place = requestDto.toEntity()
         return placeRepository.save(place)
     }
 
-    // 전체 장소 조회
     suspend fun getAllPlaces(): Flux<Place> {
         return placeRepository.findAll()
     }
 
-    // 장소 수정
     suspend fun updatePlace(id: String, requestDto: PlaceRequestDTO): Mono<Place> {
         return placeRepository.findById(id)
             .flatMap { existingPlace ->
@@ -39,22 +36,24 @@ class PlaceService(
             }
     }
 
-    // 장소 삭제
     suspend fun deletePlace(id: String): Mono<Void> {
         return placeRepository.deleteById(id)
     }
 
-    // 지역별 장소 조회
-    suspend fun getPlacesByRegion(region: Region): Flux<Place> {
-        return placeRepository.findByRegion(region.name)
+    fun getRegionsByZone(zone: Region.Zone): List<String> {
+        return Region.values()
+            .filter { it.zone == zone }
+            .map { it.districtName }
     }
 
-    // 이름으로 장소 조회
+    suspend fun getPlacesByRegion(regionName: String): Flux<Place> {
+        return placeRepository.findByRegion(regionName)
+    }
+
     suspend fun getPlacesByName(name: String): Flux<Place> {
         return placeRepository.findByNameContaining(name)
     }
 
-    // 저장된 수 증가
     suspend fun incrementSaved(id: String): Mono<Place> {
         return placeRepository.findById(id)
             .switchIfEmpty(Mono.error(CommonNotFoundException("장소 ID $id 를 찾지 못하였습니다!")))
@@ -64,7 +63,6 @@ class PlaceService(
             }
     }
 
-    //저장됨을 기준으로 상위 10개를 가져오는 메서드
     suspend fun getTop10PlacesBySaved(): Flux<Place> {
         return placeRepository.findAll()
             .sort { place1, place2 -> place2.saved.compareTo(place1.saved) }

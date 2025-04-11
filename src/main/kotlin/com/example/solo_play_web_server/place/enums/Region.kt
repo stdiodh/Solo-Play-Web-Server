@@ -20,16 +20,16 @@ enum class Region(
     YONGSAN(Zone.CENTRAL, "용산구"),
 
     // 강북권
-    DOBONG(Zone.NORTH, "도봉구"),
-    NOWON(Zone.NORTH, "노원구"),
-    SEONGBUK(Zone.NORTH, "성북구"),
-    GANGBUK(Zone.NORTH, "강북구"),
+    DOBONG(Zone.GANGBOK, "도봉구"),
+    NOWON(Zone.GANGBOK, "노원구"),
+    SEONGBUK(Zone.GANGBOK, "성북구"),
+    GANGBUK(Zone.GANGBOK, "강북구"),
 
     // 동서울권
-    DONGDAEMUN(Zone.EAST_SEOUL, "동대문구"),
-    JUNGNANG(Zone.EAST_SEOUL, "중랑구"),
-    SEONGDONG(Zone.EAST_SEOUL, "성동구"),
-    GWANGJIN(Zone.EAST_SEOUL, "광진구"),
+    DONGDAEMUN(Zone.EASTSEOUL, "동대문구"),
+    JUNGNANG(Zone.EASTSEOUL, "중랑구"),
+    SEONGDONG(Zone.EASTSEOUL, "성동구"),
+    GWANGJIN(Zone.EASTSEOUL, "광진구"),
 
     // 서남권
     GANGSEO(Zone.SOUTHWEST, "강서구"),
@@ -48,8 +48,8 @@ enum class Region(
 
     enum class Zone(val displayName: String) {
         CENTRAL("도심권"),
-        NORTH("강북권"),
-        EAST_SEOUL("동서울권"),
+        GANGBOK("강북권"),
+        EASTSEOUL("동서울권"),
         SOUTHWEST("서남권"),
         SOUTH("남서울권"),
         GANGNAM("강남권"),

@@ -6,5 +6,5 @@ import reactor.core.publisher.Flux
 
 interface CourseRepository : ReactiveMongoRepository<Course, String>{
     suspend fun findByUserId(userId: String): Flux<Course>
-    suspend fun findByCategory(category: String): Flux<Course>
+    suspend fun findByCourseCategory(courseCategory: String): Flux<Course>
 }

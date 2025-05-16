@@ -1,9 +1,9 @@
 package com.example.solo_play_web_server.place.service
 
-import PlaceRequestDTO
 import com.example.solo_play_web_server.common.exception.CommonNotFoundException
-import com.example.solo_play_web_server.course.entity.Course
+import com.example.solo_play_web_server.place.dtos.PlaceRequestDTO
 import com.example.solo_play_web_server.place.entity.Place
+import com.example.solo_play_web_server.place.enums.PlaceCategory
 import com.example.solo_play_web_server.place.enums.Region
 import com.example.solo_play_web_server.place.repository.PlaceRepository
 import org.springframework.stereotype.Service
@@ -67,5 +67,9 @@ class PlaceService(
         return placeRepository.findAll()
             .sort { place1, place2 -> place2.saved.compareTo(place1.saved) }
             .take(10)
+    }
+
+    suspend fun getTop6PlacesByCategory(category: PlaceCategory): Flux<Place> {
+        return placeRepository.findTop6ByPlaceCategoryOrderBySavedDesc(category)
     }
 }

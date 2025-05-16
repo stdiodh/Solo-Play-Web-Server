@@ -1,6 +1,6 @@
-package com.example.solo_play_web_server.course.dtos
+package com.example.solo_play_web_server.course.dto
 
-import com.example.solo_play_web_server.course.enums.Category
+import com.example.solo_play_web_server.course.enums.CourseCategory
 import com.example.solo_play_web_server.common.annotation.ValidEnum
 import com.example.solo_play_web_server.course.enums.Level
 import com.example.solo_play_web_server.place.enums.Region
@@ -26,8 +26,8 @@ data class CourseRequestDto(
     val region: Region,
 
     @field:NotNull(message = "카테고리는 필수입니다.")
-    @field:ValidEnum(enumClass = Category::class, message = "유효한 카테고리를 선택하세요.")
-    val category: Category,
+    @field:ValidEnum(enumClass = CourseCategory::class, message = "유효한 카테고리를 선택하세요.")
+    val courseCategory: CourseCategory,
 
     @field:NotNull(message = "장소 ID는 필수입니다.")
     val place: List<String>,

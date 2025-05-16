@@ -1,5 +1,8 @@
+package com.example.solo_play_web_server.place.dtos
+
 import com.example.solo_play_web_server.common.annotation.ValidEnum
 import com.example.solo_play_web_server.place.entity.Place
+import com.example.solo_play_web_server.place.enums.PlaceCategory
 import com.example.solo_play_web_server.place.enums.Region
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.validation.constraints.NotEmpty
@@ -23,7 +26,11 @@ data class PlaceRequestDTO(
     @field:NotNull(message = "사진 URL이 올바르지 않습니다!")
     @field:Size(min = 1, message = "URL 리스트는 최소 1개 이상의 항목을 가져야 합니다.")
     @JsonProperty("urls")
-    private val _urls: List<String>
+    private val _urls: List<String>,
+
+    @field:ValidEnum(enumClass = PlaceCategory::class, message = "잘못된 카테고리 입니다.")
+    @JsonProperty("placeCategory")
+    private val _placeCategory: PlaceCategory,
 ) {
     val name : String
         get() = _name
@@ -33,6 +40,8 @@ data class PlaceRequestDTO(
         get() = _description
     val urls : List<String>
         get() = _urls
+    val placeCategory : PlaceCategory
+        get() = _placeCategory
 
 
     fun toEntity(): Place {
@@ -41,7 +50,8 @@ data class PlaceRequestDTO(
             name = name,
             region = region,
             description = description,
-            urls = urls
+            urls = urls,
+            placeCategory = placeCategory
         )
     }
 }

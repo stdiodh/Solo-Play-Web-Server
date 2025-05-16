@@ -1,9 +1,9 @@
 package com.example.solo_play_web_server.course.service
 
 import com.example.solo_play_web_server.common.exception.CommonNotFoundException
-import com.example.solo_play_web_server.course.dtos.CourseRequestDto
+import com.example.solo_play_web_server.course.dto.CourseRequestDto
 import com.example.solo_play_web_server.course.entity.Course
-import com.example.solo_play_web_server.course.enums.Category
+import com.example.solo_play_web_server.course.enums.CourseCategory
 import com.example.solo_play_web_server.course.repository.CourseRepository
 import com.example.solo_play_web_server.place.repository.PlaceRepository
 import org.springframework.stereotype.Service
@@ -35,7 +35,7 @@ class CourseService(
                     title = courseRequestDto.title,
                     content = courseRequestDto.content,
                     region = courseRequestDto.region,
-                    category = courseRequestDto.category,
+                    courseCategory = courseRequestDto.courseCategory,
                     place = courseRequestDto.place,  // place는 ID 목록으로 저장
                     post = courseRequestDto.post,
                     review = courseRequestDto.review,
@@ -63,8 +63,8 @@ class CourseService(
     }
 
     // 카테고리로 코스 조회
-    suspend fun getCoursesByCategory(category: Category): Flux<Course> {
-        return courseRepository.findByCategory(category.name)
+    suspend fun getCoursesByCategory(courseCategory: CourseCategory): Flux<Course> {
+        return courseRepository.findByCourseCategory(courseCategory.name)
     }
 
     // 코스 수정
@@ -85,7 +85,7 @@ class CourseService(
                             content = courseRequestDto.content,
                             region = courseRequestDto.region,
                             level = courseRequestDto.level,
-                            category = courseRequestDto.category,
+                            courseCategory = courseRequestDto.courseCategory,
                             place = courseRequestDto.place, // 업데이트된 장소 ID 목록으로 변경
                             post = courseRequestDto.post,
                             review = courseRequestDto.review

@@ -1,5 +1,6 @@
 package com.example.solo_play_web_server.place.entity
 
+import com.example.solo_play_web_server.place.enums.PlaceCategory
 import com.example.solo_play_web_server.place.enums.Region
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
@@ -12,5 +13,6 @@ data class Place(
     val region: Region,
     val description: String,
     val saved: Int = 0,
+    val placeCategory: PlaceCategory,
     val urls: List<String>
 )

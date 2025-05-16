@@ -3,9 +3,9 @@ package com.example.solo_play_web_server.course.controller
 import com.example.solo_play_web_server.common.dtos.BaseResponse
 import com.example.solo_play_web_server.common.enum.ResultStatus
 import com.example.solo_play_web_server.common.exception.CommonNotFoundException
-import com.example.solo_play_web_server.course.dtos.CourseRequestDto
+import com.example.solo_play_web_server.course.dto.CourseRequestDto
 import com.example.solo_play_web_server.course.entity.Course
-import com.example.solo_play_web_server.course.enums.Category
+import com.example.solo_play_web_server.course.enums.CourseCategory
 import com.example.solo_play_web_server.course.service.CourseService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -66,8 +66,8 @@ class CourseController(
     // 카테고리로 코스 조회
     @Operation(summary = "카테고리별 코스 조회", description = "특정 카테고리의 코스를 조회합니다.")
     @GetMapping("/category/{category}")
-    private suspend fun getCoursesByCategory(@PathVariable category: Category): Flux<BaseResponse<Course>> {
-        return courseService.getCoursesByCategory(category)
+    private suspend fun getCoursesByCategory(@PathVariable courseCategory: CourseCategory): Flux<BaseResponse<Course>> {
+        return courseService.getCoursesByCategory(courseCategory)
             .map { course -> BaseResponse(data = course) }
     }
 

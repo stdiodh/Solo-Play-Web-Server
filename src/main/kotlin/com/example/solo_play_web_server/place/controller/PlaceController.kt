@@ -1,8 +1,9 @@
 package com.example.solo_play_web_server.place.controller
 
-import PlaceRequestDTO
 import com.example.solo_play_web_server.common.dtos.BaseResponse
+import com.example.solo_play_web_server.place.dtos.PlaceRequestDTO
 import com.example.solo_play_web_server.place.entity.Place
+import com.example.solo_play_web_server.place.enums.PlaceCategory
 import com.example.solo_play_web_server.place.enums.Region
 import com.example.solo_play_web_server.place.service.PlaceService
 import io.swagger.v3.oas.annotations.Operation
@@ -55,7 +56,7 @@ class PlaceController(
 
     @Operation(summary = "지역에 해당하는 구 목록 조회", description = "특정 지역(zone)에 해당하는 구들을 조회합니다.")
     @GetMapping("/zone/{zone}/regions")
-    fun getRegionsByZone(
+    private suspend fun getRegionsByZone(
         @Parameter(description = "지역(zone) 정보") @PathVariable zone: Region.Zone
     ): Mono<BaseResponse<List<String>>> {
         val regions = placeService.getRegionsByZone(zone)
@@ -64,7 +65,7 @@ class PlaceController(
 
     @Operation(summary = "구에 해당하는 장소 조회", description = "특정 구(region)에 해당하는 장소들을 조회합니다.")
     @GetMapping("/region/{region}/places")
-    suspend fun getPlacesByRegion(
+    private suspend fun getPlacesByRegion(
         @Parameter(description = "구(region) 정보") @PathVariable region: String
     ): Mono<BaseResponse<List<Place>>> {
         val places = placeService.getPlacesByRegion(region)
@@ -98,6 +99,15 @@ class PlaceController(
     @GetMapping("/top10/saved")
     private suspend fun getTop10PlacesBySaved(): Flux<BaseResponse<Place>> {
         return placeService.getTop10PlacesBySaved()
+            .map { place -> BaseResponse(data = place) }
+    }
+
+    @Operation(summary = "카테고리마다 상위 6개의 장소를 조회", description = "이번 주 가장 인기있는 카테고리의 장소 6곳을 조회합니다.")
+    @GetMapping("/category/saved/{placeCategory}")
+    private suspend fun getTop6PlacesByCategory(
+        @PathVariable placeCategory: PlaceCategory
+    ): Flux<BaseResponse<Place>> {
+        return placeService.getTop6PlacesByCategory(placeCategory)
             .map { place -> BaseResponse(data = place) }
     }
 }

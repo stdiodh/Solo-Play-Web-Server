@@ -1,6 +1,6 @@
 package com.example.solo_play_web_server.course.entity
 
-import com.example.solo_play_web_server.course.enums.Category
+import com.example.solo_play_web_server.course.enums.CourseCategory
 import com.example.solo_play_web_server.course.enums.Level
 import com.example.solo_play_web_server.place.enums.Region
 import org.springframework.data.annotation.Id
@@ -16,7 +16,7 @@ data class Course(
     val content: String,
     val region: Region,
     val level: Level,
-    val category: Category,
+    val courseCategory: CourseCategory,
     val place: List<String>,
     val post: List<String>?,
     val review: List<String>?,

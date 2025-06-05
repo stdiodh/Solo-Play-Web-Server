@@ -41,7 +41,7 @@ class PlaceService(
     }
 
     fun getRegionsByZone(zone: Region.Zone): List<String> {
-        return Region.values()
+        return Region.entries
             .filter { it.zone == zone }
             .map { it.districtName }
     }

@@ -17,7 +17,7 @@ data class PlaceRequestDTO(
     @field:NotEmpty(message = "지역을 입력해주세요")
     @field:ValidEnum(enumClass = Region::class, message = "잘못된 지역 입니다.")
     @JsonProperty("region")
-    private val _region: String,
+    private val _region: Region,
 
     @field:NotEmpty(message = "설명을 입력해주세요")
     @JsonProperty("description")
@@ -35,7 +35,7 @@ data class PlaceRequestDTO(
     val name : String
         get() = _name
     val region : Region
-        get() = Region.valueOf(_region)
+        get() = _region
     val description : String
         get() = _description
     val urls : List<String>

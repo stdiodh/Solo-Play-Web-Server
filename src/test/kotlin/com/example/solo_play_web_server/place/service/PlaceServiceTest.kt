@@ -8,6 +8,7 @@ import com.example.solo_play_web_server.place.enums.Region
 import com.example.solo_play_web_server.place.repository.PlaceRepository
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
+import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -27,19 +28,34 @@ class PlaceServiceTest : StringSpec() {
     }
 
     init{
+        val examplePlace = PlaceRequestDTO (
+            _name = "카페",
+            _region = Region.GANGNAM,
+            _description = "카페 설명",
+            _placeCategory = PlaceCategory.CAFE,
+            _urls = listOf("url")
+        )
+
+        "getAllPlaces() 메소드를 실행하면 장소를 모두 가져온다" {
+            val place1 = examplePlace.toEntity()
+            val place2 = examplePlace.copy(_name = "카페2").toEntity()
+
+            coEvery { placeService.getAllPlaces() } returns Flux.just(place1, place2)
+
+            val resultFlux = placeService.getAllPlaces()
+
+            StepVerifier.create(resultFlux)
+                .expectNext(place1)
+                .expectNext(place2)
+                .verifyComplete()
+        }
+
         "createPlaces() 메소드로 장소를 생성할 수 있다" {
-            val requestDTO = PlaceRequestDTO (
-                _name = "카페",
-                _region = Region.GANGNAM.toString(),
-                _description = "카페 설명",
-                _placeCategory = PlaceCategory.CAFE,
-                _urls = listOf("url")
-            )
-            val expectedPlace = requestDTO.toEntity()
+            val expectedPlace = examplePlace.toEntity()
 
             coEvery { placeRepository.save(any()) } returns Mono.just(expectedPlace)
 
-            val result = placeService.createPlace(requestDTO)
+            val result = placeService.createPlace(examplePlace)
 
             StepVerifier.create(result)
                 .expectNextMatches { it.name == "카페" && it.region == Region.GANGNAM }
@@ -52,24 +68,24 @@ class PlaceServiceTest : StringSpec() {
         "updatePlace 는 기존 장소 정보를 갱신한다." {
             val id = "1"
             val old = Place(id, "Old", Region.MAPO, "old", 0, PlaceCategory.CAFE, emptyList())
-            val dto = PlaceRequestDTO(
+            val newDto = PlaceRequestDTO(
                 _name = "New",
-                _region = Region.GANGNAM.toString(),
+                _region = Region.GANGNAM,
                 _description = "new",
                 _placeCategory = PlaceCategory.CAFE,
                 _urls = listOf("url"))
 
             val updated = old.copy(
-                name = dto.name,
-                region = dto.region,
-                description = dto.description,
-                urls = dto.urls
+                name = newDto.name,
+                region = newDto.region,
+                description = newDto.description,
+                urls = newDto.urls
             )
 
             coEvery { placeRepository.findById(id) } returns Mono.just(old)
             coEvery { placeRepository.save(updated) } returns Mono.just(updated)
 
-            val result = placeService.updatePlace(id, dto)
+            val result = placeService.updatePlace(id, newDto)
 
             StepVerifier.create(result)
                 .expectNextMatches { it.name == "New" && it.region == Region.GANGNAM }
@@ -90,6 +106,11 @@ class PlaceServiceTest : StringSpec() {
                 .verifyComplete()
 
             coVerify { placeRepository.deleteById(id) }
+        }
+
+        "getRegionsByZone 메서드는 해당 지역에 해당하는 구의 리스트로 가져온다" {
+            val result = placeService.getRegionsByZone(Region.Zone.GANGNAM)
+            result shouldContainExactly listOf("강남구", "서초구")
         }
 
 
@@ -164,8 +185,36 @@ class PlaceServiceTest : StringSpec() {
             coVerify(exactly = 1) { placeRepository.findById(placeId) }
         }
 
+        "getTop10PlacesBySaved() 메서드는 saved 수 상위 10개의 장소를 가져온다." {
+            val places = (1 .. 20).map {
+                Place(
+                    id = it.toString(),
+                    name = "Place $it",
+                    region = Region.MAPO,
+                    description = "설명 $it",
+                    saved = it * 10,
+                    placeCategory = PlaceCategory.CAFE,
+                    urls = emptyList()
+                )
+            }.shuffled()
 
-        "getTop6PlaceByCategory() 메서드를 실행하면 카테고리 별로 saved 수에 따른 상위 6개의 장소를 가져온다." {
+            coEvery { placeRepository.findAll() } returns Flux.fromIterable(places)
+
+            val expectedTop10 = places
+                .sortedByDescending { it.saved }
+                .take(10)
+
+            val result = placeService.getTop10PlacesBySaved()
+
+            StepVerifier.create(result)
+                .expectNextSequence(expectedTop10)
+                .verifyComplete()
+
+            coVerify(exactly = 1) { placeRepository.findAll() }
+        }
+
+
+        "getTop6PlaceByCategory() 메서드는 카테고리 별로 saved 수에 따른 상위 6개의 장소를 가져온다." {
             val category = PlaceCategory.CAFE
             val places = (1..6).map {
                 Place(

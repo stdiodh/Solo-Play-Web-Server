@@ -8,5 +8,5 @@ import reactor.core.publisher.Flux
 interface PlaceRepository : ReactiveMongoRepository<Place, String> {
     suspend fun findByRegion(region: String): Flux<Place>
     suspend fun findByNameContaining(name: String): Flux<Place>
-    fun findTop6ByPlaceCategoryOrderBySavedDesc(placeCategory: PlaceCategory): Flux<Place>
+    fun findTop6ByPlaceCategoryOrderByLikedDesc(placeCategory: PlaceCategory): Flux<Place>
 }

@@ -88,7 +88,7 @@ class PlaceController(
     private suspend fun incrementSaved(
         @Parameter(description = "장소 ID") @PathVariable id: String
     ): Mono<BaseResponse<Place>> {
-        return placeService.incrementSaved(id)
+        return placeService.incrementLiked(id)
             .map { place -> BaseResponse(data = place) }
             .onErrorResume { e ->
                 Mono.just(BaseResponse(status = "ERROR", resultMsg = e.message ?: "An error occurred"))
@@ -96,9 +96,9 @@ class PlaceController(
     }
 
     @Operation(summary = "저장됨 순위 상위 10개 장소 조회", description = "저장됨 수 기준으로 상위 10개 장소를 조회합니다.")
-    @GetMapping("/top10/saved")
-    private suspend fun getTop10PlacesBySaved(): Flux<BaseResponse<Place>> {
-        return placeService.getTop10PlacesBySaved()
+    @GetMapping("/top10/liked")
+    private suspend fun getTop10PlacesByLiked(): Flux<BaseResponse<Place>> {
+        return placeService.getTop10PlacesByLiked()
             .map { place -> BaseResponse(data = place) }
     }
 
@@ -107,7 +107,7 @@ class PlaceController(
     private suspend fun getTop6PlacesByCategory(
         @PathVariable placeCategory: PlaceCategory
     ): Flux<BaseResponse<Place>> {
-        return placeService.getTop6PlacesByCategory(placeCategory)
+        return placeService.findTop6ByPlaceCategoryOrderBySavedDesc(placeCategory)
             .map { place -> BaseResponse(data = place) }
     }
 }

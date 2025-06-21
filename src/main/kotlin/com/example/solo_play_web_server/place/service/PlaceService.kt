@@ -7,6 +7,7 @@ import com.example.solo_play_web_server.place.enums.PlaceCategory
 import com.example.solo_play_web_server.place.enums.Region
 import com.example.solo_play_web_server.place.repository.PlaceRepository
 import org.springframework.stereotype.Service
+import org.springframework.web.bind.annotation.PathVariable
 import reactor.core.publisher.Mono
 import reactor.core.publisher.Flux
 
@@ -54,22 +55,22 @@ class PlaceService(
         return placeRepository.findByNameContaining(name)
     }
 
-    suspend fun incrementSaved(id: String): Mono<Place> {
+    suspend fun incrementLiked(id: String): Mono<Place> {
         return placeRepository.findById(id)
             .switchIfEmpty(Mono.error(CommonNotFoundException("장소 ID $id 를 찾지 못하였습니다!")))
             .flatMap { place ->
-                val updatedPlace = place.copy(saved = place.saved + 1)
+                val updatedPlace = place.copy(liked = place.liked + 1)
                 placeRepository.save(updatedPlace)
             }
     }
 
-    suspend fun getTop10PlacesBySaved(): Flux<Place> {
+    suspend fun getTop10PlacesByLiked(): Flux<Place> {
         return placeRepository.findAll()
-            .sort { place1, place2 -> place2.saved.compareTo(place1.saved) }
+            .sort { place1, place2 -> place2.liked.compareTo(place1.liked) }
             .take(10)
     }
 
-    suspend fun getTop6PlacesByCategory(category: PlaceCategory): Flux<Place> {
-        return placeRepository.findTop6ByPlaceCategoryOrderBySavedDesc(category)
+    fun findTop6ByPlaceCategoryOrderBySavedDesc(@PathVariable category : PlaceCategory) : Flux<Place> {
+        return placeRepository.findTop6ByPlaceCategoryOrderByLikedDesc(category)
     }
 }

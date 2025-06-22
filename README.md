@@ -8,6 +8,25 @@ SoloPlay(솔로플레이)는 혼자 사는 사용자들을 위한 맞춤 놀이 
 개발 기간: 2024년 10월 28일 ~ -ing
 Back-End Repository입니다.
 
+## 🧑‍💻 프로젝트 팀원 소개 
+<table>
+  <tr>
+    <th scope="col">Front-End</th>
+    <th scope="col">Front-End</th>
+    <th scope="col">Beck-End</th>
+  </tr>
+  <tr>
+    <th scope="col"><img src = "https://github.com/user-attachments/assets/3e22107e-3e30-44d5-8d4a-61cfbab8eac2" width = "100" height = "100"></th>
+    <th scope="col"><img src = "https://github.com/user-attachments/assets/18293112-b6d5-4b4d-b45f-3cc73774ce3d" width = "100" height = "100"></th>
+    <th scope="col"><img src = "https://github.com/user-attachments/assets/a51e908a-f9ca-4819-a36a-5f26da14a3aa" width = "100" height = "100"></th>
+  </tr>
+  <tr>
+    <th scope="col"><A href="https://github.com/SangWook16074">HanSangWook</th>
+    <th scope="col"><A href="https://github.com/SangWook16074">KimDongWook</th>
+    <th scope="col"><A href="https://github.com/stdiodh">Hood</th>
+  </tr>
+</table>
+
 ## ⚙️ 기술 스택
 ### ✔️Back-end
 <table>
@@ -17,14 +36,14 @@ Back-End Repository입니다.
     <th scope="col">MongoDB</th>
     <th scope="col">AWS EC2</th>
     <th scope="col">Docker</th>
-    <th scope="col">GitHub Actions</th>
+    <th scope="col">Git Actions</th>
   </tr>
   <tr>
-    <th scope="col"><img src = "https://simpleicons.org/icons/kotlin.svg" width = "50" height = "50"></th>
-    <th scope="col"><img src = "https://simpleicons.org/icons/springboot.svg" width = "50" height = "50"></th>
-    <th scope="col"><img src = "https://simpleicons.org/icons/mongodb.svg" width = "50" height = "50"></th>
-    <th scope="col"><img src = "https://simpleicons.org/icons/amazonec2.svg" width = "50" height = "50"></th>     
-    <th scope="col"><img src = "https://simpleicons.org/icons/docker.svg" width = "50" height = "50"></th>     
+    <th scope="col"><img src = "https://github.com/user-attachments/assets/80ae7152-6b52-477e-bee7-504e46119af2"  width = "50" height = "50"></th>
+    <th scope="col"><img src = "https://github.com/user-attachments/assets/f0a5c7a5-1ea5-486f-884e-f404e227f9d4" width = "50" height = "50"></th>
+    <th scope="col"><img src = "https://github.com/user-attachments/assets/b1e27d13-222d-47f0-b25a-98d975283be3" width = "50" height = "50"></th>
+    <th scope="col"><img src = "https://github.com/user-attachments/assets/1e5aaa79-0a47-4e20-9023-6ebd930d1716" width = "50" height = "50"></th>
+    <th scope="col"><img src = "https://github.com/user-attachments/assets/8531285b-ac7a-43c5-a856-7dd15bbf1ed5" width = "50" height = "50"></th>
     <th scope="col"><img src = "https://simpleicons.org/icons/githubactions.svg" width = "50" height = "50"></th>
   </tr>
 </table>

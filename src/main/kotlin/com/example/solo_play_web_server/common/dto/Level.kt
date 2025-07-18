@@ -1,4 +1,4 @@
-package com.example.solo_play_web_server.course.enums
+package com.example.solo_play_web_server.common.dto
 
 enum class Level(val label : String) {
     one("혼자는 아직 힘들어"),

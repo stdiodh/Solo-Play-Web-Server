@@ -3,7 +3,7 @@ package com.example.solo_play_web_server.place.enums
 /**
  * 서울권 지역을 분리하기 위한 Enum Class
  */
-enum class Region(
+enum class Area(
     val zone: Zone,
     val districtName: String
 ) {

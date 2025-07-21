@@ -41,7 +41,7 @@ class PlaceService (
             .flatMapMany { Flux.fromIterable(it) }
             .map { place ->
                 RecommendPlaceResponseDto(
-                    placeId = place.id ?: "",
+                    id = place.id ?: "",
                     name = place.name,
                     area = place.region,
                     description = place.description,

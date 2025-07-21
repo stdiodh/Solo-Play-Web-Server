@@ -2,6 +2,7 @@ package com.example.solo_play_web_server.place.service
 
 import com.example.solo_play_web_server.common.dto.Level
 import com.example.solo_play_web_server.place.dtos.PlaceRequestDTO
+import com.example.solo_play_web_server.place.dtos.RecommendPlaceResponseDto
 import com.example.solo_play_web_server.place.entity.Place
 import com.example.solo_play_web_server.place.enums.Area
 import com.example.solo_play_web_server.place.repository.PlaceRepository
@@ -33,17 +34,21 @@ class PlaceService (
         }
     }
 
-    suspend fun generateRandomPlaces(level: Level): List<Place> {
-        val randomPlaces = (1..10).map {
-            Place(
-                name = "레벨 $level 테스트 장소 $it",
-                description = "레벨 $level 에 자동 생성 설명입니다.",
-                region = Area.entries.random(),
-                level = level,
-                tags = listOf("예시 태그1", "예시 태그2", "예시 태그3"),
-                urls = listOf("https://example.com/image$it.jpg")
-            )
-        }
-        return placeRepository.saveAll(randomPlaces).collectList().awaitSingle()
+    suspend fun getRandomPlacesByLevel(level: Level): Flux<RecommendPlaceResponseDto> {
+        return placeRepository.findByLevel(level)
+            .collectList() // 전체 리스트 수집
+            .map { it.shuffled().take(10) }
+            .flatMapMany { Flux.fromIterable(it) }
+            .map { place ->
+                RecommendPlaceResponseDto(
+                    placeId = place.id ?: "",
+                    name = place.name,
+                    area = place.region,
+                    description = place.description,
+                    level = place.level,
+                    tags = place.tags,
+                    urls = place.urls
+                )
+            }
     }
 }

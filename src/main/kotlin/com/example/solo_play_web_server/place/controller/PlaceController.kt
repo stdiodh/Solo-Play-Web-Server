@@ -2,6 +2,7 @@ package com.example.solo_play_web_server.place.controller
 
 import com.example.solo_play_web_server.common.dto.Level
 import com.example.solo_play_web_server.place.dtos.PlaceRequestDTO
+import com.example.solo_play_web_server.place.dtos.RecommendPlaceResponseDto
 import com.example.solo_play_web_server.place.entity.Place
 import com.example.solo_play_web_server.place.service.PlaceService
 import io.swagger.v3.oas.annotations.Operation
@@ -46,12 +47,11 @@ class PlaceCommandController(
         else ResponseEntity.status(HttpStatus.NOT_FOUND).build()
     }
 
-    @Operation(summary = "레벨 기반 장소 자동 생성", description = "레벨(one, two, three)을 기준으로 무작위 장소 10개를 생성합니다.")
-    @PostMapping("/generate/{level}")
-    suspend fun generatePlacesByLevel(
-        @Parameter(description = "레벨(one, two, three)") @PathVariable level: Level
-    ): ResponseEntity<List<Place>> {
-        val generated = placeService.generateRandomPlaces(level)
-        return ResponseEntity.ok(generated)
+    @Operation(summary = "레벨 기반 장소 조회", description = "레벨(one, two, three)을 기준으로 무작위 장소 10개를 조회합니다.")
+    @GetMapping("/recommend")
+    suspend fun getRecommendedPlaces(
+        @RequestParam level: Level
+    ): Flux<RecommendPlaceResponseDto> {
+        return placeService.getRandomPlacesByLevel(level)
     }
 }

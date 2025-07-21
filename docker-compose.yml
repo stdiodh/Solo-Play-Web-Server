@@ -3,10 +3,6 @@ services:
   mongodb:
     image: mongo  # MONGODB 이미지 및 버전
     container_name: solo-play-mongodb-container  # 컨테이너 이름
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: ${ROOT_PASSWORD}
-    restart: on-failure
     volumes:
       - mongodb_data:/var/lib/mongo # 데이터를 저장할 볼륨 정의
     networks:

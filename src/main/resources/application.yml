@@ -6,7 +6,7 @@ spring:
 
   data:
     mongodb:
-      uri: ${DB_URL}
+      uri: ${MONGO_DB_URL}
 
 springdoc:
   swagger-ui:

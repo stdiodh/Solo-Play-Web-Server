@@ -10,5 +10,5 @@ data class RecommendPlaceResponseDto(
     val area : Area,
     val level : Level,
     val tags : List<String>,
-    val urls : List<String>
+    val url : String
 )

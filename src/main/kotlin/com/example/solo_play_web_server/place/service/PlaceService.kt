@@ -4,11 +4,8 @@ import com.example.solo_play_web_server.common.dto.Level
 import com.example.solo_play_web_server.place.dtos.PlaceRequestDTO
 import com.example.solo_play_web_server.place.dtos.RecommendPlaceResponseDto
 import com.example.solo_play_web_server.place.entity.Place
-import com.example.solo_play_web_server.place.enums.Area
 import com.example.solo_play_web_server.place.repository.PlaceRepository
-import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -47,7 +44,7 @@ class PlaceService (
                     description = place.description,
                     level = place.level,
                     tags = place.tags,
-                    urls = place.urls
+                    url = place.urls.first()
                 )
             }
     }

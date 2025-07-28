@@ -20,7 +20,6 @@ import reactor.core.publisher.Mono
 class PlaceCommandController(
     private val placeService: PlaceService
 ) {
-
     @Operation(summary = "모든 장소 조회", description = "데이터베이스에 저장된 모든 장소를 반환합니다.")
     @GetMapping
     suspend fun getAllPlace(): ResponseEntity<Flux<Place>> {

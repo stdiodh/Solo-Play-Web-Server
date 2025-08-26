@@ -1,4 +1,4 @@
-package com.example.solo_play_web_server.auth.entities
+package com.example.solo_play_web_server.auth.entity
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document

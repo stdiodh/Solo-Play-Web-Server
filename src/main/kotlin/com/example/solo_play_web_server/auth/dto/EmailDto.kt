@@ -1,4 +1,4 @@
-package com.example.solo_play_web_server.auth.dtos
+package com.example.solo_play_web_server.auth.dto
 
 data class SendVerificationEmailRequest(
     val email : String

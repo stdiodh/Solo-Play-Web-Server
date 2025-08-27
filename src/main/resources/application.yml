@@ -8,6 +8,26 @@ spring:
     mongodb:
       uri: ${MONGO_DB_URL}
 
+    redis:
+      host: localhost
+      port: 6379
+
+
+  mail:
+    protocol: smtp
+    port: 587
+    username: ${GOOGLE_ID}
+    password: ${APP_PASSWORD}
+    host: smtp.gmail.com
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
+
 springdoc:
   swagger-ui:
     path: /swagger-ui/index.html

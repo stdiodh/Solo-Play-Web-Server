@@ -29,3 +29,9 @@ data class Agreement(
     val isConsentedToAds : Boolean
 )
 
+data class PendingMember(
+    val email: String,
+    val password: String,
+    val nickname: String,
+    val agreement: Agreement
+)

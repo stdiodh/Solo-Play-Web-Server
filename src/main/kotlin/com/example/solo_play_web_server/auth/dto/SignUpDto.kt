@@ -1,12 +1,11 @@
 package com.example.solo_play_web_server.auth.dto
 
+import com.example.solo_play_web_server.auth.entity.Agreement
+
 data class SignUpRequest(
     val email : String,
     val password : String,
     val nickname : String,
-    val isOver14 : Boolean,
-    val isAgreedToTerms : Boolean,
-    val isAgreedToMarketing : Boolean,
-    val isConsentedToAds : Boolean
+    val agreement : Agreement
 )
 

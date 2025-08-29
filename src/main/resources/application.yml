@@ -31,3 +31,8 @@ spring:
 springdoc:
   swagger-ui:
     path: /swagger-ui/index.html
+
+jwt:
+  secret-key: ${JWT_SECRET}
+  access-token-expiry-ms: ${ACCESS_EXPIRY}
+  refresh-token-expiry-ms: ${REFRESH_EXPIRY}

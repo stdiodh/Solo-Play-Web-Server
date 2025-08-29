@@ -1,5 +1,6 @@
 package com.example.solo_play_web_server.auth.controller
 
+import com.example.solo_play_web_server.auth.dto.LoginRequest
 import com.example.solo_play_web_server.auth.dto.SendVerifyEmailRequest
 import com.example.solo_play_web_server.auth.dto.SignUpRequest
 import com.example.solo_play_web_server.auth.dto.TokenResponse
@@ -44,4 +45,16 @@ class MemberController(
         return ResponseEntity.status(HttpStatus.OK)
             .body(ApiResponse(status = ResultStatus.SUCCESS, message = "회원가입 및 로그인이 완료되었습니다.", data = tokenResponse))
     }
+
+    @Operation(
+        summary = "로그인",
+        description = "회원의 이메일과 비밀번호를 받아 인증에 성공한다면 엑세스, 리프래쉬 토큰을 발급합니다."
+    )
+    @PostMapping("/login")
+    suspend fun login(@Valid @RequestBody loginRequest: LoginRequest): ResponseEntity<ApiResponse<TokenResponse>>{
+        val tokenResponse = memberService.login(loginRequest)
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(ApiResponse(status = ResultStatus.SUCCESS, message = "로그인에 성공했습니다.", data = tokenResponse))
+    }
+
 }

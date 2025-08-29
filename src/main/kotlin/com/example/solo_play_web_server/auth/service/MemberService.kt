@@ -1,5 +1,6 @@
 package com.example.solo_play_web_server.auth.service
 
+import com.example.solo_play_web_server.auth.dto.LoginRequest
 import com.example.solo_play_web_server.auth.dto.PendingMember
 import com.example.solo_play_web_server.auth.dto.SendVerifyEmailRequest
 import com.example.solo_play_web_server.auth.dto.SignUpRequest
@@ -15,6 +16,7 @@ import com.example.solo_play_web_server.common.exception.EmailDuplicateException
 import com.example.solo_play_web_server.common.exception.InvalidTokenException
 import com.example.solo_play_web_server.common.exception.NicknameDuplicateException
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.Duration
@@ -78,5 +80,16 @@ class MemberService (
 
         val savedMember = memberRepository.save(member).awaitSingle()
         return jwtProvider.generateTokens(savedMember.id!!, savedMember.role)
+    }
+
+    suspend fun login(loginRequest: LoginRequest) : TokenResponse {
+        val member = memberRepository.findByEmail(loginRequest.email).awaitSingleOrNull()
+            ?: throw IllegalArgumentException("가입되지 않은 이메일입니다.")
+
+        if (!passwordEncoder.matches(loginRequest.password, member.password)) {
+            throw IllegalArgumentException("비밀번호가 일치하지 않습니다.")
+        }
+
+        return jwtProvider.generateTokens(member.id!!, member.role)
     }
 }

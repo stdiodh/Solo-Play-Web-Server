@@ -35,7 +35,8 @@ class SecurityConfig {
                 ).permitAll()
                     .pathMatchers(
                         "/api/auth/signup/**",
-                        "/api/auth/verify"
+                        "/api/auth/verify",
+                        "api/auth/login"
                     ).permitAll()
                     .anyExchange().authenticated()
             }

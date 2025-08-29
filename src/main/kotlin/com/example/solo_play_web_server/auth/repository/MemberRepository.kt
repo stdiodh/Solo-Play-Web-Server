@@ -7,4 +7,5 @@ import reactor.core.publisher.Mono
 interface MemberRepository : ReactiveMongoRepository<Member, String?>{
     fun existsByEmail(email: String) : Mono<Boolean>
     fun existsByNickname(nickname: String) : Mono<Boolean>
+    fun findByEmail(email: String) : Mono<Member>
 }

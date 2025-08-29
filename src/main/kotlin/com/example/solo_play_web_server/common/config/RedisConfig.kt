@@ -1,6 +1,6 @@
 package com.example.solo_play_web_server.common.config
 
-import com.example.solo_play_web_server.auth.entity.PendingMember
+import com.example.solo_play_web_server.auth.dto.VerificationData
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -12,7 +12,6 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer
 import org.springframework.data.redis.serializer.RedisSerializationContext
 import org.springframework.data.redis.serializer.StringRedisSerializer
 import com.example.solo_play_web_server.auth.entity.RefreshToken
-import com.example.solo_play_web_server.auth.entity.VerificationData
 
 @Configuration
 class RedisConfig {

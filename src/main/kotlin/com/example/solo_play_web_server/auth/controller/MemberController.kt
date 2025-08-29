@@ -39,11 +39,9 @@ class MemberController(
         description = "6개의 코드를 가지고 이메일 인증이 성공했다면 회원가입이 정상적으로 마무리됩니다."
     )
     @PostMapping("/verify")
-    suspend fun verifyCodeAndSignUp(@Valid @RequestBody sendVerifyEmailRequest: SendVerifyEmailRequest): ApiResponse<TokenResponse> {
+    suspend fun verifyCodeAndSignUp(@Valid @RequestBody sendVerifyEmailRequest: SendVerifyEmailRequest): ResponseEntity<ApiResponse<TokenResponse>> {
         val tokenResponse = memberService.verifyCodeAndSignUp(sendVerifyEmailRequest)
-        // 성공 시 200 OK와 함께 JWT 토큰을 담아 응답 (즉시 로그인)
-        return ApiResponse(status = ResultStatus.SUCCESS, message = "회원가입 및 로그인이 완료되었습니다.", data = tokenResponse)
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(ApiResponse(status = ResultStatus.SUCCESS, message = "회원가입 및 로그인이 완료되었습니다.", data = tokenResponse))
     }
-
-
 }

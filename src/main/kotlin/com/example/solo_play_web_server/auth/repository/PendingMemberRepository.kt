@@ -1,6 +1,6 @@
 package com.example.solo_play_web_server.auth.repository
 
-import com.example.solo_play_web_server.auth.entity.VerificationData
+import com.example.solo_play_web_server.auth.dto.VerificationData
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.redis.core.ReactiveRedisTemplate

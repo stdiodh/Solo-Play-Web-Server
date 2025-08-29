@@ -1,11 +1,11 @@
 package com.example.solo_play_web_server.auth.service
 
+import com.example.solo_play_web_server.auth.dto.PendingMember
 import com.example.solo_play_web_server.auth.dto.SendVerifyEmailRequest
 import com.example.solo_play_web_server.auth.dto.SignUpRequest
 import com.example.solo_play_web_server.auth.dto.TokenResponse
+import com.example.solo_play_web_server.auth.dto.VerificationData
 import com.example.solo_play_web_server.auth.entity.Member
-import com.example.solo_play_web_server.auth.entity.PendingMember
-import com.example.solo_play_web_server.auth.entity.VerificationData
 import com.example.solo_play_web_server.auth.enum.AuthProvider
 import com.example.solo_play_web_server.auth.enum.MemberRole
 import com.example.solo_play_web_server.auth.repository.MemberRepository

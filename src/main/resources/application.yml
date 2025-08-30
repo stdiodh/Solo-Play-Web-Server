@@ -8,6 +8,29 @@ spring:
     mongodb:
       uri: ${MONGO_DB_URL}
 
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+
+  mail:
+    protocol: smtp
+    port: 587
+    username: ${GOOGLE_ID}
+    password: ${APP_PASSWORD}
+    host: smtp.gmail.com
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 springdoc:
   swagger-ui:
     path: /swagger-ui/index.html
+
+jwt:
+  secret-key: ${JWT_SECRET}
+  access-token-expiry-ms: ${ACCESS_EXPIRY}
+  refresh-token-expiry-ms: ${REFRESH_EXPIRY}

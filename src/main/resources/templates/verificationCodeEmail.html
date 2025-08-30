@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoloPlay 인증 코드 안내</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', Dotum, '돋움', sans-serif; background-color: #f8f9fa;">
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f8f9fa;">
+    <tr>
+        <td align="center">
+            <table width="600" border="0" cellspacing="0" cellpadding="40" style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+
+                <tr>
+                    <td align="center" style="padding-bottom: 20px; border-bottom: 1px solid #dee2e6;">
+                        <h1 style="margin: 0; font-size: 28px; color: #495057; font-weight: 700;">
+                            SoloPlay
+                        </h1>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td align="center" style="padding-top: 40px; padding-bottom: 40px;">
+                        <h2 style="margin: 0 0 20px 0; font-size: 24px; color: #212529; font-weight: 600;">
+                            이메일 인증 코드를 확인해주세요.
+                        </h2>
+                        <p style="margin: 0 0 30px 0; font-size: 16px; color: #495057; line-height: 1.6;">
+                            회원가입을 계속하려면 아래 6자리 인증 코드를<br>
+                            인증 코드 입력란에 정확하게 입력해주세요.
+                        </p>
+
+                        <!-- 인증 코드 박스 -->
+                        <div style="padding: 20px 30px; background-color: #f1f3f5; border-radius: 8px; font-size: 36px; font-weight: 700; color: #1971c2; letter-spacing: 8px; margin-bottom: 30px;">
+                            <!-- Thymeleaf가 이 부분을 실제 코드로 대체합니다. -->
+                            <span th:text="${verificationCode}">123456</span>
+                        </div>
+
+                        <p style="margin: 0; font-size: 14px; color: #868e96;">
+                            이 인증 코드는 <strong style="color: #d9480f;">15분</strong>간 유효합니다.<br>
+                            만약 본인이 요청한 것이 아니라면 이 메일을 무시해주세요.
+                        </p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td align="center" style="padding-top: 20px; border-top: 1px solid #dee2e6; font-size: 12px; color: #adb5bd;">
+                        <p style="margin: 0;">© 2025 SoloPlay. All Rights Reserved.</p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

@@ -25,6 +25,7 @@ dependencies {
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+	implementation("org.springframework.boot:spring-boot-starter-security")
 
 	// 테스트 용 의존성 추가
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
@@ -41,6 +42,17 @@ dependencies {
 	// Spring Boot MongoDB Reactive 지원
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
+	//jjwt
+	implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
+
+	//redis
+	implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
+
+	// smtp
+	implementation("org.springframework.boot:spring-boot-starter-mail")
+	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 }
 
 kotlin {

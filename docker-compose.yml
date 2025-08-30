@@ -30,8 +30,16 @@ services:
       MONGO_DB_URL: ${DB_URL}
       MONGO_PORT: ${DB_PORT}
 
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+
+      JWT_SECRET: ${JWT_SECRET}
+      GOOGLE_ID: ${GOOGLE_ID}
+      APP_PASSWORD: ${APP_PASSWORD}
+
     depends_on:
       - mongodb
+      - redis
     networks:
       - solo_play_net
     ports:

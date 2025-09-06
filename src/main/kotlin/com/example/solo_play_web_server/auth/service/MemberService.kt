@@ -48,7 +48,7 @@ class MemberService (
 
         val verificationData = VerificationData(pendingMember, code)
 
-        val success = pendingMemberRepository.save(signUpRequest.email, verificationData, Duration.ofMinutes(15))
+        val success = pendingMemberRepository.save(signUpRequest.email, verificationData, Duration.ofMinutes(10))
 
         if(success) {
             emailService.sendVerificationCode(signUpRequest.email, code)

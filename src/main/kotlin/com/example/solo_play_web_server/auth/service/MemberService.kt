@@ -14,6 +14,7 @@ import com.example.solo_play_web_server.auth.repository.PendingMemberRepository
 import com.example.solo_play_web_server.common.auth.JwtProvider
 import com.example.solo_play_web_server.common.exception.EmailDuplicateException
 import com.example.solo_play_web_server.common.exception.InvalidTokenException
+import com.example.solo_play_web_server.common.exception.LoginFailedException
 import com.example.solo_play_web_server.common.exception.NicknameDuplicateException
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -32,10 +33,10 @@ class MemberService (
 ){
     suspend fun requestSignUp(signUpRequest: SignUpRequest) {
         if(memberRepository.existsByEmail(signUpRequest.email).awaitSingle()){
-            throw EmailDuplicateException()
+            throw EmailDuplicateException(message = "이미 사용 중인 이메일입니다.")
         }
         if(memberRepository.existsByNickname(signUpRequest.nickname).awaitSingle()){
-            throw NicknameDuplicateException()
+            throw NicknameDuplicateException(message = "이미 사용 중인 닉네임입니다.")
         }
 
         val code = String.format("%06d", Random().nextInt(1_000_000))
@@ -48,7 +49,7 @@ class MemberService (
 
         val verificationData = VerificationData(pendingMember, code)
 
-        val success = pendingMemberRepository.save(signUpRequest.email, verificationData, Duration.ofMinutes(15))
+        val success = pendingMemberRepository.save(signUpRequest.email, verificationData, Duration.ofMinutes(10))
 
         if(success) {
             emailService.sendVerificationCode(signUpRequest.email, code)
@@ -62,7 +63,7 @@ class MemberService (
             ?: throw InvalidTokenException("인증 시간이 만료되었거나 요청 정보가 잘못되었습니다.")
 
         if(verificationData.code != sendVerifyEmailRequest.code){
-            throw InvalidTokenException("인증 코드가 일치하지 않습니다.")
+            throw InvalidTokenException("인증코드가 틀렸습니다.")
         }
 
         pendingMemberRepository.deleteByEmail(sendVerifyEmailRequest.email)
@@ -84,10 +85,10 @@ class MemberService (
 
     suspend fun login(loginRequest: LoginRequest) : TokenResponse {
         val member = memberRepository.findByEmail(loginRequest.email).awaitSingleOrNull()
-            ?: throw IllegalArgumentException("가입되지 않은 이메일입니다.")
+            ?: throw LoginFailedException("존재하지 않는 계정입니다. 회원가입 하시겠습니까?")
 
         if (!passwordEncoder.matches(loginRequest.password, member.password)) {
-            throw IllegalArgumentException("비밀번호가 일치하지 않습니다.")
+            throw LoginFailedException("사용자 이름 또는 비밀번호가 올바르지 않습니다.")
         }
 
         return jwtProvider.generateTokens(member.id!!, member.role)

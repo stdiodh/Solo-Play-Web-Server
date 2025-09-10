@@ -1,4 +1,4 @@
-package com.example.solo_play_web_server.place
+package com.example.solo_play_web_server.place.service
 
 import com.example.solo_play_web_server.auth.dto.Agreement
 import com.example.solo_play_web_server.auth.dto.LoginRequest
@@ -33,7 +33,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import reactor.core.publisher.Mono
 import java.time.Duration
 
-class MemberServiceSpec : BehaviorSpec (){
+class MemberServiceSpec : BehaviorSpec(){
     @MockK
     lateinit var memberRepository: MemberRepository
     @MockK
@@ -74,7 +74,13 @@ class MemberServiceSpec : BehaviorSpec (){
                 memberService.requestSignUp(signUpRequest)
 
                 Then("임시 회원 정보가 저장되고 인증 메일이 발송된다.") {
-                    coVerify(exactly = 1) { pendingMemberRepository.save(signUpRequest.email, any(), Duration.ofMinutes(10)) }
+                    coVerify(exactly = 1) {
+                        pendingMemberRepository.save(
+                            signUpRequest.email,
+                            any(),
+                            Duration.ofMinutes(10)
+                        )
+                    }
                     coVerify(exactly = 1) { emailService.sendVerificationCode(signUpRequest.email, any()) }
                 }
             }
@@ -83,7 +89,7 @@ class MemberServiceSpec : BehaviorSpec (){
                 coEvery { memberRepository.existsByEmail(signUpRequest.email) } returns Mono.just(true)
 
                 Then("EmailDuplicateException 예외가 발생한다.") {
-                    val exception = shouldThrow<EmailDuplicateException>{
+                    val exception = shouldThrow<EmailDuplicateException> {
                         memberService.requestSignUp(signUpRequest)
                     }
                     exception.message shouldBe "이미 사용 중인 이메일입니다."
@@ -121,12 +127,15 @@ class MemberServiceSpec : BehaviorSpec (){
 
         Given("인증 및 회원가입(verifyCodeAndSignUp) 시"){
             val request = SendVerifyEmailRequest("test@example.com", "123456")
-            val pendingMember = PendingMember("test@example.com", "encodedPassword", "tester", Agreement(true, true, true, true))
+            val pendingMember =
+                PendingMember("test@example.com", "encodedPassword", "tester", Agreement(true, true, true, true))
             val verificationData = VerificationData(pendingMember, "123456")
-            val savedMember = Member("id","test@example.com", "encodedPassword", "tester",
+            val savedMember = Member(
+                "id", "test@example.com", "encodedPassword", "tester",
                 null, AuthProvider.LOCAL, setOf(MemberRole.USER),
-                Agreement(true, true, true, true), true)
-            val tokenResponse = TokenResponse("Bearer","accessToken", "refreshToken")
+                Agreement(true, true, true, true), true
+            )
+            val tokenResponse = TokenResponse("Bearer", "accessToken", "refreshToken")
 
 
             When("올바른 인증 코드로 요청하면"){
@@ -170,9 +179,11 @@ class MemberServiceSpec : BehaviorSpec (){
 
         Given("로그인(login) 시"){
             val loginRequest = LoginRequest("test@example.com", "password123")
-            val member = Member("id", "test@example.com", "encodedPassword", "tester",
+            val member = Member(
+                "id", "test@example.com", "encodedPassword", "tester",
                 null, AuthProvider.LOCAL, setOf(MemberRole.USER),
-                Agreement(true, true, true, true), true)
+                Agreement(true, true, true, true), true
+            )
             val tokenResponse = TokenResponse("Bearer", "accessToken", "refreshToken")
 
             When("올바른 이메일과 비밀번호로 요청하면"){

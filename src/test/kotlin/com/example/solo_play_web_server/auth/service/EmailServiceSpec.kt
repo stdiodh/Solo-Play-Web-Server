@@ -1,6 +1,5 @@
-package com.example.solo_play_web_server.place.service
+package com.example.solo_play_web_server.auth.service
 
-import com.example.solo_play_web_server.auth.service.EmailService
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.*
 import io.mockk.impl.annotations.MockK

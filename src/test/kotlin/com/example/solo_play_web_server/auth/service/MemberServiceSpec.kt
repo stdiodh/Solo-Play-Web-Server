@@ -1,18 +1,11 @@
-package com.example.solo_play_web_server.place.service
+package com.example.solo_play_web_server.auth.service
 
-import com.example.solo_play_web_server.auth.dto.Agreement
-import com.example.solo_play_web_server.auth.dto.LoginRequest
-import com.example.solo_play_web_server.auth.dto.PendingMember
-import com.example.solo_play_web_server.auth.dto.SignUpRequest
-import com.example.solo_play_web_server.auth.dto.TokenResponse
-import com.example.solo_play_web_server.auth.dto.VerificationData
+import com.example.solo_play_web_server.auth.dto.*
 import com.example.solo_play_web_server.auth.entity.Member
 import com.example.solo_play_web_server.auth.enum.AuthProvider
 import com.example.solo_play_web_server.auth.enum.MemberRole
 import com.example.solo_play_web_server.auth.repository.MemberRepository
-import com.example.solo_play_web_server.auth.repository.PendingMemberRepository
-import com.example.solo_play_web_server.auth.service.EmailService
-import com.example.solo_play_web_server.auth.service.MemberService
+import com.example.solo_play_web_server.auth.repository.VerificationCodeRepository
 import com.example.solo_play_web_server.common.auth.JwtProvider
 import com.example.solo_play_web_server.common.exception.EmailDuplicateException
 import com.example.solo_play_web_server.common.exception.InvalidTokenException
@@ -20,24 +13,19 @@ import com.example.solo_play_web_server.common.exception.LoginFailedException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.MockKAnnotations
-import io.mockk.clearAllMocks
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.every
+import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import org.springframework.security.crypto.password.PasswordEncoder
 import reactor.core.publisher.Mono
-import java.time.Duration
 
-class MemberServiceSpec : BehaviorSpec(){
+class MemberServiceSpec : BehaviorSpec() {
     @MockK
     lateinit var memberRepository: MemberRepository
     @MockK
     lateinit var passwordEncoder: PasswordEncoder
     @MockK
-    lateinit var pendingMemberRepository: PendingMemberRepository
+    lateinit var verificationCodeRepository: VerificationCodeRepository // 수정됨
     @MockK
     lateinit var emailService: EmailService
     @MockK
@@ -46,7 +34,7 @@ class MemberServiceSpec : BehaviorSpec(){
     lateinit var memberService: MemberService
 
     init {
-        beforeSpec {
+        beforeTest {
             MockKAnnotations.init(this)
         }
 
@@ -54,108 +42,110 @@ class MemberServiceSpec : BehaviorSpec(){
             clearAllMocks()
         }
 
-        Given("회원가입 요청(requestSignUp) 시") {
-            val signUpRequest = SignUpRequest(
-                email = "test@example.com",
-                password = "password123",
-                agreement = Agreement(true, true, true, true)
-            )
+        Given("이메일 중복 확인(isEmailAlreadyExists) 시") {
+            val email = "test@example.com"
+            When("이미 사용 중인 이메일이면") {
+                coEvery { memberRepository.existsByEmail(email) } returns Mono.just(true)
+                val result = memberService.isEmailAlreadyExists(email)
+                Then("true를 반환한다") {
+                    result shouldBe true
+                }
+            }
+            When("사용 가능한 이메일이면") {
+                coEvery { memberRepository.existsByEmail(email) } returns Mono.just(false)
+                val result = memberService.isEmailAlreadyExists(email)
+                Then("false를 반환한다") {
+                    result shouldBe false
+                }
+            }
+        }
 
-            When("정상적인 정보로 요청하면") {
+        Given("인증 코드 발송(sendVerificationCode) 시") {
+            val request = EmailVerificationRequest("test@example.com")
+            When("정상적으로 요청하면") {
                 coEvery { memberRepository.existsByEmail(any()) } returns Mono.just(false)
-                every { passwordEncoder.encode(any()) } returns "encoderPassword"
-                coEvery { pendingMemberRepository.save(any(), any(), any()) } returns true
+                coEvery { verificationCodeRepository.saveCode(any(), any(), any()) } returns true
                 coEvery { emailService.sendVerificationCode(any(), any()) } returns Unit
 
-                memberService.requestSignUp(signUpRequest)
+                memberService.sendVerificationCode(request)
 
-                Then("임시 회원 정보가 저장되고 인증 메일이 발송된다.") {
-                    coVerify(exactly = 1) {
-                        pendingMemberRepository.save(
-                            signUpRequest.email,
-                            any(),
-                            Duration.ofMinutes(10)
-                        )
-                    }
-                    coVerify(exactly = 1) { emailService.sendVerificationCode(signUpRequest.email, any()) }
+                Then("인증 코드가 저장되고 이메일이 발송된다") {
+                    coVerify(exactly = 1) { verificationCodeRepository.saveCode(request.email, any(), any()) }
+                    coVerify(exactly = 1) { emailService.sendVerificationCode(request.email, any()) }
                 }
             }
 
-            When("이미 사용 중인 이메일로 요청하면"){
-                coEvery { memberRepository.existsByEmail(signUpRequest.email) } returns Mono.just(true)
-
+            When("이미 가입된 이메일이면") {
+                coEvery { memberRepository.existsByEmail(request.email) } returns Mono.just(true)
                 Then("EmailDuplicateException 예외가 발생한다.") {
                     val exception = shouldThrow<EmailDuplicateException> {
-                        memberService.requestSignUp(signUpRequest)
+                        memberService.sendVerificationCode(request)
                     }
                     exception.message shouldBe "이미 사용 중인 이메일입니다."
                 }
             }
 
-            When("임시 회원 정보 저장에 실패하면") {
+            When("임시 코드 저장에 실패하면") {
                 coEvery { memberRepository.existsByEmail(any()) } returns Mono.just(false)
-                every { passwordEncoder.encode(any()) } returns "encodedPassword"
-                coEvery { pendingMemberRepository.save(any(), any(), any()) } returns false
+                coEvery { verificationCodeRepository.saveCode(any(), any(), any()) } returns false
 
                 Then("RuntimeException 예외가 발생하고 이메일은 발송되지 않는다") {
                     val exception = shouldThrow<RuntimeException> {
-                        memberService.requestSignUp(signUpRequest)
+                        memberService.sendVerificationCode(request)
                     }
-                    exception.message shouldBe "임시 회원 저장에 실패했습니다."
+                    exception.message shouldBe "인증 코드 저장에 실패했습니다."
 
                     coVerify(exactly = 0) { emailService.sendVerificationCode(any(), any()) }
                 }
             }
         }
 
-        Given("인증 및 회원가입(verifyCodeAndSignUp) 시"){
-            val request = SendVerifyEmailRequest("test@example.com", "123456")
-            val pendingMember =
-                PendingMember("test@example.com", "encodedPassword", Agreement(true, true, true, true))
-            val verificationData = VerificationData(pendingMember, "123456")
+        Given("최종 회원가입(signUp) 시") {
+            val request = SignUpRequest(
+                email = "test@example.com", password = "password123!",
+                code = "123456", agreement = Agreement(true, true, true, true)
+            )
             val savedMember = Member(
-                "id", "test@example.com", "encodedPassword",
-                null, AuthProvider.LOCAL, setOf(MemberRole.USER),
-                Agreement(true, true, true, true), true
+                id = "id", email = request.email, password = "encodedPassword",
+                provider = AuthProvider.LOCAL, role = setOf(MemberRole.USER), agreement = request.agreement
             )
             val tokenResponse = TokenResponse("Bearer", "accessToken", "refreshToken")
 
-
-            When("올바른 인증 코드로 요청하면"){
-                coEvery { pendingMemberRepository.findByEmail(request.email) } returns verificationData
-                coEvery { pendingMemberRepository.deleteByEmail(request.email) } returns Unit
+            When("올바른 정보로 요청하면") {
+                coEvery { verificationCodeRepository.findCodeByEmail(request.email) } returns request.code
+                coEvery { memberRepository.existsByEmail(request.email) } returns Mono.just(false)
+                every { passwordEncoder.encode(request.password) } returns "encodedPassword"
                 coEvery { memberRepository.save(any()) } returns Mono.just(savedMember)
+                coEvery { verificationCodeRepository.deleteCodeByEmail(request.email) } returns Unit
                 every { jwtProvider.generateTokens(savedMember.id!!, savedMember.role) } returns tokenResponse
 
-                val result = memberService.verifyCodeAndSignUp(request)
+                val result = memberService.signUp(request)
 
-                Then("회원가입이 완료되고 토큰이 발급된다."){
+                Then("회원가입이 완료되고 토큰이 발급되며 코드는 삭제된다") {
                     result shouldBe tokenResponse
                     coVerify(exactly = 1) { memberRepository.save(any()) }
-                    coVerify(exactly = 1) { pendingMemberRepository.deleteByEmail(request.email) }
+                    coVerify(exactly = 1) { verificationCodeRepository.deleteCodeByEmail(request.email) }
                 }
             }
 
-            When("인증 코드가 일치하지 않으면"){
-                val wrongVerificationData = verificationData.copy(code = "654321")
-                coEvery { pendingMemberRepository.findByEmail(request.email) } returns wrongVerificationData
-
-                Then("InvalidTokenException 예외가 발생한다."){
-                    val exception = shouldThrow<InvalidTokenException> {
-                        memberService.verifyCodeAndSignUp(request)
-                    }
-                    exception.message shouldBe "인증코드가 틀렸습니다."
-                }
-            }
-
-            When("인증 코드의 유효시간이 지나면"){
-                coEvery { pendingMemberRepository.findByEmail(request.email) } returns null
-
+            When("인증 코드가 일치하지 않으면") {
+                coEvery { verificationCodeRepository.findCodeByEmail(request.email) } returns "wrong-code"
                 Then("InvalidTokenException 예외가 발생한다") {
                     val exception = shouldThrow<InvalidTokenException> {
-                        memberService.verifyCodeAndSignUp(request)
+                        memberService.signUp(request)
                     }
-                    exception.message shouldBe "인증 시간이 만료되었거나 요청 정보가 잘못되었습니다."
+                    exception.message shouldBe "인증 코드가 일치하지 않습니다."
+                }
+            }
+
+            When("인증 코드 시간이 만료되거나 유효하지 않으면"){
+                coEvery { verificationCodeRepository.findCodeByEmail(request.email)} returns null
+
+                Then("InvalidTokenException 예외가 발생한다"){
+                    val exception = shouldThrow<InvalidTokenException> {
+                        memberService.signUp(request)
+                    }
+                    exception.message shouldBe "인증 코드가 만료되었거나 유효하지 않습니다."
                 }
             }
         }
@@ -165,7 +155,7 @@ class MemberServiceSpec : BehaviorSpec(){
             val member = Member(
                 "id", "test@example.com", "encodedPassword",
                 null, AuthProvider.LOCAL, setOf(MemberRole.USER),
-                Agreement(true, true, true, true), true
+                Agreement(true, true, true, true)
             )
             val tokenResponse = TokenResponse("Bearer", "accessToken", "refreshToken")
 
@@ -205,6 +195,4 @@ class MemberServiceSpec : BehaviorSpec(){
             }
         }
     }
-
-
 }

@@ -15,7 +15,6 @@ import com.example.solo_play_web_server.common.auth.JwtProvider
 import com.example.solo_play_web_server.common.exception.EmailDuplicateException
 import com.example.solo_play_web_server.common.exception.InvalidTokenException
 import com.example.solo_play_web_server.common.exception.LoginFailedException
-import com.example.solo_play_web_server.common.exception.NicknameDuplicateException
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -35,15 +34,11 @@ class MemberService (
         if(memberRepository.existsByEmail(signUpRequest.email).awaitSingle()){
             throw EmailDuplicateException(message = "이미 사용 중인 이메일입니다.")
         }
-        if(memberRepository.existsByNickname(signUpRequest.nickname).awaitSingle()){
-            throw NicknameDuplicateException(message = "이미 사용 중인 닉네임입니다.")
-        }
 
         val code = String.format("%06d", Random().nextInt(1_000_000))
         val pendingMember = PendingMember(
             email = signUpRequest.email,
             password = passwordEncoder.encode(signUpRequest.password),
-            nickname = signUpRequest.nickname,
             agreement = signUpRequest.agreement
         )
 
@@ -71,7 +66,6 @@ class MemberService (
         val member = Member(
             email = verificationData.pendingMember.email,
             password = verificationData.pendingMember.password,
-            nickname = verificationData.pendingMember.nickname,
             agreement = verificationData.pendingMember.agreement,
             verified = true,
             provider = AuthProvider.LOCAL,

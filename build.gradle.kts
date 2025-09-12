@@ -35,6 +35,7 @@ dependencies {
 	testImplementation("io.mockk:mockk:1.13.13")
 	testImplementation("io.projectreactor:reactor-test:3.7.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("com.ninja-squad:springmockk:4.0.2")
 
 	// swaager
 	implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.3.0")

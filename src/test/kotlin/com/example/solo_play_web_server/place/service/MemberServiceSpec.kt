@@ -18,7 +18,6 @@ import com.example.solo_play_web_server.common.auth.JwtProvider
 import com.example.solo_play_web_server.common.exception.EmailDuplicateException
 import com.example.solo_play_web_server.common.exception.InvalidTokenException
 import com.example.solo_play_web_server.common.exception.LoginFailedException
-import com.example.solo_play_web_server.common.exception.NicknameDuplicateException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -60,13 +59,11 @@ class MemberServiceSpec : BehaviorSpec(){
             val signUpRequest = SignUpRequest(
                 email = "test@example.com",
                 password = "password123",
-                nickname = "tester",
                 agreement = Agreement(true, true, true, true)
             )
 
             When("정상적인 정보로 요청하면") {
                 coEvery { memberRepository.existsByEmail(any()) } returns Mono.just(false)
-                coEvery { memberRepository.existsByNickname(any()) } returns Mono.just(false)
                 every { passwordEncoder.encode(any()) } returns "encoderPassword"
                 coEvery { pendingMemberRepository.save(any(), any(), any()) } returns true
                 coEvery { emailService.sendVerificationCode(any(), any()) } returns Unit
@@ -96,21 +93,8 @@ class MemberServiceSpec : BehaviorSpec(){
                 }
             }
 
-            When("이미 사용 중인 닉네임으로 요청하면"){
-                coEvery { memberRepository.existsByEmail(any()) } returns Mono.just(false)
-                coEvery { memberRepository.existsByNickname(any()) } returns Mono.just(true)
-
-                Then("NickNameDuplicateException 예외가 발생한다."){
-                    val exception = shouldThrow<NicknameDuplicateException> {
-                        memberService.requestSignUp(signUpRequest)
-                    }
-                    exception.message shouldBe "이미 사용 중인 닉네임입니다."
-                }
-            }
-
             When("임시 회원 정보 저장에 실패하면") {
                 coEvery { memberRepository.existsByEmail(any()) } returns Mono.just(false)
-                coEvery { memberRepository.existsByNickname(any()) } returns Mono.just(false)
                 every { passwordEncoder.encode(any()) } returns "encodedPassword"
                 coEvery { pendingMemberRepository.save(any(), any(), any()) } returns false
 
@@ -128,10 +112,10 @@ class MemberServiceSpec : BehaviorSpec(){
         Given("인증 및 회원가입(verifyCodeAndSignUp) 시"){
             val request = SendVerifyEmailRequest("test@example.com", "123456")
             val pendingMember =
-                PendingMember("test@example.com", "encodedPassword", "tester", Agreement(true, true, true, true))
+                PendingMember("test@example.com", "encodedPassword", Agreement(true, true, true, true))
             val verificationData = VerificationData(pendingMember, "123456")
             val savedMember = Member(
-                "id", "test@example.com", "encodedPassword", "tester",
+                "id", "test@example.com", "encodedPassword",
                 null, AuthProvider.LOCAL, setOf(MemberRole.USER),
                 Agreement(true, true, true, true), true
             )
@@ -180,7 +164,7 @@ class MemberServiceSpec : BehaviorSpec(){
         Given("로그인(login) 시"){
             val loginRequest = LoginRequest("test@example.com", "password123")
             val member = Member(
-                "id", "test@example.com", "encodedPassword", "tester",
+                "id", "test@example.com", "encodedPassword",
                 null, AuthProvider.LOCAL, setOf(MemberRole.USER),
                 Agreement(true, true, true, true), true
             )

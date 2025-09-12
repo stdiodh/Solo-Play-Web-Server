@@ -1,16 +1,15 @@
 package com.example.solo_play_web_server.auth.service
 
+import com.example.solo_play_web_server.auth.dto.EmailAvailabilityResponse
+import com.example.solo_play_web_server.auth.dto.EmailVerificationRequest
 import com.example.solo_play_web_server.auth.dto.LoginRequest
-import com.example.solo_play_web_server.auth.dto.PendingMember
-import com.example.solo_play_web_server.auth.dto.SendVerifyEmailRequest
 import com.example.solo_play_web_server.auth.dto.SignUpRequest
 import com.example.solo_play_web_server.auth.dto.TokenResponse
-import com.example.solo_play_web_server.auth.dto.VerificationData
 import com.example.solo_play_web_server.auth.entity.Member
 import com.example.solo_play_web_server.auth.enum.AuthProvider
 import com.example.solo_play_web_server.auth.enum.MemberRole
 import com.example.solo_play_web_server.auth.repository.MemberRepository
-import com.example.solo_play_web_server.auth.repository.PendingMemberRepository
+import com.example.solo_play_web_server.auth.repository.VerificationCodeRepository
 import com.example.solo_play_web_server.common.auth.JwtProvider
 import com.example.solo_play_web_server.common.exception.EmailDuplicateException
 import com.example.solo_play_web_server.common.exception.InvalidTokenException
@@ -19,63 +18,61 @@ import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
-import java.util.Random
+import java.util.*
 
 @Service
 class MemberService (
     private val memberRepository : MemberRepository,
     private val passwordEncoder : PasswordEncoder,
-    private val pendingMemberRepository: PendingMemberRepository,
+    private val verificationCodeRepository: VerificationCodeRepository,
     private val emailService : EmailService,
     private val jwtProvider: JwtProvider
 ){
-    suspend fun requestSignUp(signUpRequest: SignUpRequest) {
-        if(memberRepository.existsByEmail(signUpRequest.email).awaitSingle()){
+    @Transactional(readOnly = true)
+    suspend fun isEmailAlreadyExists(email: String): Boolean {
+        return memberRepository.existsByEmail(email).awaitSingle()
+    }
+
+    suspend fun sendVerificationCode(request: EmailVerificationRequest) {
+        if (memberRepository.existsByEmail(request.email).awaitSingle()) {
             throw EmailDuplicateException(message = "이미 사용 중인 이메일입니다.")
         }
 
         val code = String.format("%06d", Random().nextInt(1_000_000))
-        val pendingMember = PendingMember(
-            email = signUpRequest.email,
-            password = passwordEncoder.encode(signUpRequest.password),
-            agreement = signUpRequest.agreement
-        )
+        val success = verificationCodeRepository.saveCode(request.email, code, Duration.ofMinutes(10))
 
-        val verificationData = VerificationData(pendingMember, code)
-
-        val success = pendingMemberRepository.save(signUpRequest.email, verificationData, Duration.ofMinutes(10))
-
-        if(success) {
-            emailService.sendVerificationCode(signUpRequest.email, code)
+        if (success) {
+            emailService.sendVerificationCode(request.email, code)
         } else {
-            throw RuntimeException("임시 회원 저장에 실패했습니다.")
+            throw RuntimeException("인증 코드 저장에 실패했습니다.")
         }
     }
 
-    suspend fun verifyCodeAndSignUp(sendVerifyEmailRequest : SendVerifyEmailRequest) : TokenResponse {
-        val verificationData = pendingMemberRepository.findByEmail(sendVerifyEmailRequest.email)
-            ?: throw InvalidTokenException("인증 시간이 만료되었거나 요청 정보가 잘못되었습니다.")
+    suspend fun signUp(request: SignUpRequest): TokenResponse {
+        val savedCode = verificationCodeRepository.findCodeByEmail(request.email)
+            ?: throw InvalidTokenException("인증 코드가 만료되었거나 유효하지 않습니다.")
 
-        if(verificationData.code != sendVerifyEmailRequest.code){
-            throw InvalidTokenException("인증코드가 틀렸습니다.")
+        if (savedCode != request.code) {
+            throw InvalidTokenException("인증 코드가 일치하지 않습니다.")
         }
 
-        pendingMemberRepository.deleteByEmail(sendVerifyEmailRequest.email)
-
         val member = Member(
-            email = verificationData.pendingMember.email,
-            password = verificationData.pendingMember.password,
-            agreement = verificationData.pendingMember.agreement,
-            verified = true,
+            email = request.email,
+            password = passwordEncoder.encode(request.password),
+            agreement = request.agreement,
             provider = AuthProvider.LOCAL,
-            role = setOf(MemberRole.USER),
-            imageUrl = null
+            role = setOf(MemberRole.USER)
         )
 
         val savedMember = memberRepository.save(member).awaitSingle()
+
+        verificationCodeRepository.deleteCodeByEmail(request.email)
+
         return jwtProvider.generateTokens(savedMember.id!!, savedMember.role)
     }
+
 
     suspend fun login(loginRequest: LoginRequest) : TokenResponse {
         val member = memberRepository.findByEmail(loginRequest.email).awaitSingleOrNull()

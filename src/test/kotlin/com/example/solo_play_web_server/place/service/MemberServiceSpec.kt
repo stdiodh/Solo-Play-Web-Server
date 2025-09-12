@@ -3,7 +3,6 @@ package com.example.solo_play_web_server.place.service
 import com.example.solo_play_web_server.auth.dto.Agreement
 import com.example.solo_play_web_server.auth.dto.LoginRequest
 import com.example.solo_play_web_server.auth.dto.PendingMember
-import com.example.solo_play_web_server.auth.dto.SendVerifyEmailRequest
 import com.example.solo_play_web_server.auth.dto.SignUpRequest
 import com.example.solo_play_web_server.auth.dto.TokenResponse
 import com.example.solo_play_web_server.auth.dto.VerificationData

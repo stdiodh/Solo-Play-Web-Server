@@ -15,6 +15,5 @@ data class Member(
     val imageUrl : String? = null,
     val provider : AuthProvider,
     val role : Set<MemberRole>,
-    val agreement : Agreement,
-    val verified: Boolean
+    val agreement : Agreement
 )

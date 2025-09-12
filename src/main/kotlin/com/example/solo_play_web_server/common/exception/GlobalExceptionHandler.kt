@@ -47,7 +47,7 @@ class GlobalExceptionHandler {
 
         // 예외 종류에 따라 적절한 HTTP 상태 코드 결정
         val status = when (ex) {
-            is EmailDuplicateException, is NicknameDuplicateException -> HttpStatus.CONFLICT
+            is EmailDuplicateException -> HttpStatus.CONFLICT
             is LoginFailedException -> HttpStatus.UNAUTHORIZED
             else -> HttpStatus.BAD_REQUEST // 400
         }

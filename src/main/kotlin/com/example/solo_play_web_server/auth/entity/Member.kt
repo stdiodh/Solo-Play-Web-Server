@@ -12,10 +12,8 @@ data class Member(
     val id : String? = null,
     val email : String,
     val password : String,
-    val nickname : String,
     val imageUrl : String? = null,
     val provider : AuthProvider,
     val role : Set<MemberRole>,
-    val agreement : Agreement,
-    val verified: Boolean
+    val agreement : Agreement
 )

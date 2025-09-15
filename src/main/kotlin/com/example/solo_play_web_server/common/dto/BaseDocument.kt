@@ -1,4 +1,4 @@
-package com.example.solo_play_web_server.common.Dto
+package com.example.solo_play_web_server.common.dto
 
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate

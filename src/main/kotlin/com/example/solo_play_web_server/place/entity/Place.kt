@@ -1,9 +1,10 @@
 package com.example.solo_play_web_server.place.entity
 
-import com.example.solo_play_web_server.common.Dto.BaseDocument
+import com.example.solo_play_web_server.common.dto.BaseDocument
 import com.example.solo_play_web_server.place.enum.MainCategory
 import com.example.solo_play_web_server.place.enums.SubCategory
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 
@@ -11,6 +12,9 @@ import org.springframework.data.mongodb.core.mapping.Field
 class Place (
     @Id
     val id: String? = null,
+
+    @Indexed(unique = true)
+    val kakaoPlaceId: String,
 
     @Field("area")
     val area: String,

@@ -26,6 +26,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
 	// 테스트 용 의존성 추가
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")

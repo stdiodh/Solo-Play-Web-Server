@@ -31,14 +31,19 @@ class MemberController(
         summary = "[signup] 이메일 검증",
         description = "회원의 이메일이 서버에 존재하는 지에 대한 여부를 확인합니다."
     )
-    @GetMapping("/email-check")
+    @GetMapping("/check-email-duplicate")
     suspend fun checkEmailAvailability(@RequestParam email: String): ResponseEntity<ApiResponse<EmailAvailabilityResponse>> {
         val isExist = memberService.isEmailAlreadyExists(email)
-        val isAvailable = !isExist
-        val responseData = EmailAvailabilityResponse(isAvailable = isAvailable)
-        val message = if (isAvailable) "사용 가능한 이메일입니다." else "이미 사용 중인 아이디에요."
 
-        return ResponseEntity.ok(ApiResponse(ResultStatus.SUCCESS, message, responseData))
+        return if (isExist) {
+            val responseData = EmailAvailabilityResponse(isAvailable = false)
+            val apiResponse = ApiResponse(ResultStatus.ERROR, "이미 사용 중인 아이디에요.", responseData)
+            ResponseEntity.status(HttpStatus.CONFLICT).body(apiResponse)
+        } else {
+            val responseData = EmailAvailabilityResponse(isAvailable = true)
+            val apiResponse = ApiResponse(ResultStatus.SUCCESS, "사용 가능한 이메일입니다.", responseData)
+            ResponseEntity.ok(apiResponse)
+        }
     }
 
     @Operation(

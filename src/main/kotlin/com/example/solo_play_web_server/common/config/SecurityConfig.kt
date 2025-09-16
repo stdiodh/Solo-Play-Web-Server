@@ -35,7 +35,7 @@ class SecurityConfig {
                 ).permitAll()
                     .pathMatchers(
                         "/api/auth/signup/**",
-                        "/api/auth/email-check",
+                        "/api/auth/check-email-duplicate",
                         "/api/auth/email-verify",
                         "/api/auth/login"
                     ).permitAll()

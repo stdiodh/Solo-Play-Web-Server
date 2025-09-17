@@ -1,6 +1,7 @@
 package com.example.solo_play_web_server.place.entity
 
 import com.example.solo_play_web_server.common.dto.BaseDocument
+import com.example.solo_play_web_server.place.enum.Level
 import com.example.solo_play_web_server.place.enum.MainCategory
 import com.example.solo_play_web_server.place.enums.SubCategory
 import org.springframework.data.annotation.Id
@@ -35,7 +36,7 @@ class Place (
     val subCategory: SubCategory,
 
     @Field("level")
-    val level: Int,
+    val level: Level,
 
     @Field("kakao_category_name")
     val kakaoCategoryName: String,

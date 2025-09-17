@@ -16,6 +16,9 @@ class Place (
     @Indexed(unique = true)
     val kakaoPlaceId: String,
 
+    @Field("placeName")
+    val placeName: String,
+
     @Field("area")
     val area: String,
 
@@ -33,6 +36,15 @@ class Place (
 
     @Field("level")
     val level: Int,
+
+    @Field("kakao_category_name")
+    val kakaoCategoryName: String,
+
+    @Field("display_title")
+    val displayTitle: String,
+
+    @Field("display_tags")
+    val displayTags: List<String?> = listOf(),
 
     @Field("urls")
     val urls: List<String> = listOf()

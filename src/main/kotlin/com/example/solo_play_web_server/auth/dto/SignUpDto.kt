@@ -43,13 +43,20 @@ data class Agreement(
     val isConsentedToAds : Boolean
 )
 
-data class PendingMember(
+data class ProvisionalSignUpRequest(
     val email: String,
     val password: String,
     val agreement: Agreement
 )
 
-data class VerificationData (
-    val pendingMember: PendingMember,
+// API #2 (최종 가입) 요청 DTO
+data class FinalizeSignUpRequest(
+    val email: String,
     val code: String
+)
+
+data class PendingMemberData(
+    val email: String,
+    val encodedPassword: String,
+    val agreement: Agreement
 )

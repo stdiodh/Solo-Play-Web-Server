@@ -2,7 +2,9 @@ package com.example.solo_play_web_server.auth.controller
 
 import com.example.solo_play_web_server.auth.dto.EmailAvailabilityResponse
 import com.example.solo_play_web_server.auth.dto.EmailVerificationRequest
+import com.example.solo_play_web_server.auth.dto.FinalizeSignUpRequest
 import com.example.solo_play_web_server.auth.dto.LoginRequest
+import com.example.solo_play_web_server.auth.dto.ProvisionalSignUpRequest
 import com.example.solo_play_web_server.auth.dto.SignUpRequest
 import com.example.solo_play_web_server.auth.dto.TokenResponse
 import com.example.solo_play_web_server.auth.service.MemberService
@@ -46,23 +48,18 @@ class MemberController(
         }
     }
 
-    @Operation(
-        summary = "[signup] 이메일 인증 코드 전송",
-        description = "회원의 이메일에 인증 메일을 발송합니다."
-    )
-    @PostMapping("/email-verify")
-    suspend fun sendVerificationEmail(@Valid @RequestBody emailVerificationRequest: EmailVerificationRequest): ResponseEntity<ApiResponse<Void>> {
-        memberService.sendVerificationCode(emailVerificationRequest)
-        return ResponseEntity.ok(ApiResponse(ResultStatus.SUCCESS,"인증 코드를 발송했습니다. 이메일을 확인해주세요."))
+    @Operation(summary = "[signup] 1. 임시 회원가입 및 이메일 인증 요청", description = "회원 정보를 받아 임시 저장하고, 해당 이메일로 인증 코드를 발송합니다.")
+    @PostMapping("/signup/provisional")
+    suspend fun provisionalSignUp(@Valid @RequestBody provisionalSignUpRequest: ProvisionalSignUpRequest): ResponseEntity<ApiResponse<Unit>> {
+        memberService.provisionalSignUp(provisionalSignUpRequest)
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(ApiResponse(ResultStatus.SUCCESS, "인증 메일이 발송되었습니다. 이메일을 확인해주세요."))
     }
 
-    @Operation(
-        summary = "[signup] 최종 회원가입",
-        description = "검증된 회원 정보와 이메일 인증이 성공했다면 회원가입이 성공되며 엑세스 토큰과 리프레쉬 토큰이 발급됩니다."
-    )
-    @PostMapping("/signup")
-    suspend fun signUp(@Valid @RequestBody signUpRequest: SignUpRequest): ResponseEntity<ApiResponse<TokenResponse>> {
-        val tokenResponse = memberService.signUp(signUpRequest)
+    @Operation(summary = "[signup] 2. 최종 회원가입", description = "이메일과 인증 코드로 최종 인증을 완료하고 토큰을 발급합니다.")
+    @PostMapping("/signup/finalize")
+    suspend fun finalizeSignUp(@Valid @RequestBody finalizeSignUpRequest: FinalizeSignUpRequest): ResponseEntity<ApiResponse<TokenResponse>> {
+        val tokenResponse = memberService.finalizeSignUp(finalizeSignUpRequest)
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(ApiResponse(ResultStatus.SUCCESS, "회원가입이 완료되었습니다.", tokenResponse))
     }

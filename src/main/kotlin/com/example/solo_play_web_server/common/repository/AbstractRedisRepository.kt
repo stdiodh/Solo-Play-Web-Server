@@ -21,4 +21,8 @@ abstract class AbstractRedisRepository<V : Any> {
     protected suspend fun delete(keySuffix: String): Boolean {
         return redisTemplate.opsForValue().delete(getKey(keySuffix)).awaitSingleOrNull() ?: false
     }
+
+    protected suspend fun findAndDelete(keySuffix: String): V? {
+        return redisTemplate.opsForValue().getAndDelete(getKey(keySuffix)).awaitSingleOrNull()
+    }
 }

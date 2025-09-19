@@ -40,8 +40,6 @@ class EmailServiceSpec : BehaviorSpec() {
                 emailService.sendVerificationCode(toEmail, code)
 
                 Then("메일 전송 로직이 호출된다") {
-                    // Assert/Verify
-                    // Dispatcher가 주입되지 않았으므로, 비동기 작업을 기다리기 위해 timeout이 필요합니다.
                     verify(timeout = 1000, exactly = 1) { templateEngine.process(any<String>(), any<Context>()) }
                     verify(timeout = 1000, exactly = 1) { mailSender.send(any<MimeMessage>()) }
                 }

@@ -37,6 +37,7 @@ class SecurityConfig {
                         "/api/auth/signup/**",
                         "/api/auth/check-email-duplicate",
                         "/api/auth/email-verify",
+                        "/api/auth/email-confirm",
                         "/api/auth/login"
                     ).permitAll()
                     .anyExchange().authenticated()

@@ -1,6 +1,5 @@
 package com.example.solo_play_web_server.common.config
 
-import com.example.solo_play_web_server.auth.dto.PendingMemberData
 import com.example.solo_play_web_server.auth.entity.RefreshToken
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -32,19 +31,12 @@ class RedisConfig {
         return ReactiveRedisTemplate(factory, serializationContext)
     }
 
-    @Bean("pendingMemberDataRedisTemplate")
-    fun pendingMemberDataRedisTemplate(
-        factory: ReactiveRedisConnectionFactory,
-        objectMapper: ObjectMapper
-    ): ReactiveRedisTemplate<String, PendingMemberData> {
-        val keySerializer = StringRedisSerializer.UTF_8
-        val valueSerializer = Jackson2JsonRedisSerializer(objectMapper, PendingMemberData::class.java)
-
+    @Bean("signUpProofRedisTemplate")
+    fun signUpProofRedisTemplate(factory: ReactiveRedisConnectionFactory): ReactiveRedisTemplate<String, String> {
+        val serializer = StringRedisSerializer.UTF_8
         val serializationContext = RedisSerializationContext
-            .newSerializationContext<String, PendingMemberData>(keySerializer)
-            .value(valueSerializer)
+            .newSerializationContext<String, String>(serializer)
             .build()
-
         return ReactiveRedisTemplate(factory, serializationContext)
     }
 

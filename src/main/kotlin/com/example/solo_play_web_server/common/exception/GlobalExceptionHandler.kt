@@ -50,7 +50,7 @@ class GlobalExceptionHandler {
             is EmailDuplicateException -> HttpStatus.CONFLICT
             is LoginFailedException -> HttpStatus.UNAUTHORIZED
             is VerificationCodeException -> HttpStatus.BAD_REQUEST
-            is SignUpSessionException -> HttpStatus.BAD_REQUEST
+            is SignUpProofException -> HttpStatus.BAD_REQUEST
             else -> HttpStatus.BAD_REQUEST // 400
         }
         return ResponseEntity.status(status).body(response)

@@ -42,10 +42,10 @@ class Place (
     val kakaoCategoryName: String,
 
     @Field("display_title")
-    val displayTitle: String,
+    var displayTitle: String,
 
     @Field("display_tags")
-    val displayTags: List<String?> = listOf(),
+    var displayTags: List<String?> = listOf(),
 
     @Field("urls")
     val urls: List<String> = listOf()

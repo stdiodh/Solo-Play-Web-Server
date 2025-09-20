@@ -38,3 +38,8 @@ jwt:
 kakao:
   api:
     key: ${KAKAO_API_KEY}
+
+gemini:
+  api:
+    key: ${GEMINI_API_KEY}
+    url: ${GEMINI_API_URL}

@@ -15,7 +15,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class PlaceService (
     private val kakaoApiService: KakaoApiService,
-    private val placeRepository: PlaceRepository
+    private val placeRepository: PlaceRepository,
+    private val placeEnrichmentService: PlaceEnrichmentService
 ){
     companion object {
         private val KAKAO_CATEGORY_EXCLUSION_LIST = setOf(
@@ -40,9 +41,12 @@ class PlaceService (
         }
 
         if (placesToSave.isNotEmpty()) {
-            placeRepository.saveAll(placesToSave).asFlow().toList()
-        }
+            val savedPlaces = placeRepository.saveAll(placesToSave).asFlow().toList()
 
+            savedPlaces.forEach { place ->
+                placeEnrichmentService.enrichPlaceData(place)
+            }
+        }
         return placesToSave.size
     }
 

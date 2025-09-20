@@ -1,6 +1,7 @@
 package com.example.solo_play_web_server.place.entity
 
 import com.example.solo_play_web_server.common.dto.BaseDocument
+import com.example.solo_play_web_server.place.enum.Level
 import com.example.solo_play_web_server.place.enum.MainCategory
 import com.example.solo_play_web_server.place.enums.SubCategory
 import org.springframework.data.annotation.Id
@@ -15,6 +16,9 @@ class Place (
 
     @Indexed(unique = true)
     val kakaoPlaceId: String,
+
+    @Field("placeName")
+    val placeName: String,
 
     @Field("area")
     val area: String,
@@ -32,7 +36,16 @@ class Place (
     val subCategory: SubCategory,
 
     @Field("level")
-    val level: Int,
+    val level: Level,
+
+    @Field("kakao_category_name")
+    val kakaoCategoryName: String,
+
+    @Field("display_title")
+    var displayTitle: String,
+
+    @Field("display_tags")
+    var displayTags: List<String?> = listOf(),
 
     @Field("urls")
     val urls: List<String> = listOf()

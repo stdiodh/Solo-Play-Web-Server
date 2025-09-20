@@ -33,12 +33,12 @@ class SecurityConfig {
                     "/v3/api-docs/**",
                     "/webjars/**"
                 ).permitAll()
-                    .pathMatchers(
+                    it.pathMatchers(
                         "/api/auth/signup/**",
                         "/api/auth/email-check",
                         "/api/auth/email-verify",
                         "/api/auth/login",
-                        "/api/places"
+                        "/api/places/**"
                     ).permitAll()
                     .anyExchange().authenticated()
             }

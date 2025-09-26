@@ -1,18 +1,36 @@
 spring:
-  web:
-    resources:
-      add-mappings: false
-
-  sql:
-    init:
-      mode: always
+  application:
+    name: solo_play_web_server
+  config:
+    import: optional:file:.env[.properties]
 
   data:
-    r2dbc:
-      repositories:
-        enabled: true
+    mongodb:
+      uri: ${MONGO_DB_URL}
 
-  r2dbc:
-    url: r2dbc:h2:mem:///testdb;MODE=MySQL
-    username: sa
-    password:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+
+  mail:
+    protocol: smtp
+    port: 587
+    username: ${GOOGLE_ID}
+    password: ${APP_PASSWORD}
+    host: smtp.gmail.com
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html
+
+jwt:
+  secret-key: ${JWT_SECRET}
+  access-token-expiry-ms: ${ACCESS_EXPIRY}
+  refresh-token-expiry-ms: ${REFRESH_EXPIRY}

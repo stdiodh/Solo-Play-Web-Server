@@ -1,36 +1,40 @@
 spring:
   application:
-    name: solo_play_web_server
-  config:
-    import: optional:file:.env[.properties]
+    name: solo_play_web_server-test
 
   data:
     mongodb:
-      uri: ${MONGO_DB_URL}
+      uri: mongodb://localhost:27017/soloplay_test_db
 
     redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-
+      host: localhost
+      port: 6379
 
   mail:
-    protocol: smtp
+    host: smtp.test.com
     port: 587
-    username: ${GOOGLE_ID}
-    password: ${APP_PASSWORD}
-    host: smtp.gmail.com
+    username: test-user@test.com
+    password: test-password
     properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+      mail.smtp.auth: true
+      starttls.enable: true
 
 springdoc:
+  api-docs:
+    enabled: false
   swagger-ui:
-    path: /swagger-ui/index.html
+    enabled: false
 
 jwt:
-  secret-key: ${JWT_SECRET}
-  access-token-expiry-ms: ${ACCESS_EXPIRY}
-  refresh-token-expiry-ms: ${REFRESH_EXPIRY}
+  secret-key: "a-very-long-and-secure-secret-key-for-testing-purpose-only-1234567890"
+  access-token-expiry-ms: 3600000   # 1시간
+  refresh-token-expiry-ms: 86400000  # 24시간
+
+kakao:
+  api:
+    key: "test-kakao-api-key"
+
+gemini:
+  api:
+    key: "test-gemini-api-key"
+    url: "http://localhost/gemini"

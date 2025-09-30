@@ -1,7 +1,5 @@
 package com.example.solo_play_web_server.auth.service
 
-import com.example.solo_play_web_server.auth.dto.EmailAvailabilityResponse
-import com.example.solo_play_web_server.auth.dto.EmailVerificationRequest
 import com.example.solo_play_web_server.auth.dto.LoginRequest
 import com.example.solo_play_web_server.auth.dto.SignUpRequest
 import com.example.solo_play_web_server.auth.dto.TokenResponse
@@ -9,70 +7,50 @@ import com.example.solo_play_web_server.auth.entity.Member
 import com.example.solo_play_web_server.auth.enum.AuthProvider
 import com.example.solo_play_web_server.auth.enum.MemberRole
 import com.example.solo_play_web_server.auth.repository.MemberRepository
-import com.example.solo_play_web_server.auth.repository.VerificationCodeRepository
+import com.example.solo_play_web_server.auth.repository.SignUpProofRepository
 import com.example.solo_play_web_server.common.auth.JwtProvider
 import com.example.solo_play_web_server.common.exception.EmailDuplicateException
-import com.example.solo_play_web_server.common.exception.InvalidTokenException
 import com.example.solo_play_web_server.common.exception.LoginFailedException
+import com.example.solo_play_web_server.common.exception.SignUpProofException
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Duration
-import java.util.*
 
 @Service
+@Transactional
 class MemberService (
     private val memberRepository : MemberRepository,
     private val passwordEncoder : PasswordEncoder,
-    private val verificationCodeRepository: VerificationCodeRepository,
-    private val emailService : EmailService,
-    private val jwtProvider: JwtProvider
+    private val jwtProvider: JwtProvider,
+    private val signUpProofRepository: SignUpProofRepository
 ){
     @Transactional(readOnly = true)
     suspend fun isEmailAlreadyExists(email: String): Boolean {
         return memberRepository.existsByEmail(email).awaitSingle()
     }
 
-    suspend fun sendVerificationCode(request: EmailVerificationRequest) {
-        if (memberRepository.existsByEmail(request.email).awaitSingle()) {
-            throw EmailDuplicateException(message = "이미 사용 중인 이메일입니다.")
+    suspend fun signUp(signUpRequest: SignUpRequest) {
+        val proofEmail = signUpProofRepository.consumeProof(signUpRequest.proofToken)
+        if(proofEmail == null || proofEmail != signUpRequest.email){
+            throw SignUpProofException("유효하지 않은 회원가입 요청입니다.")
         }
 
-        val code = String.format("%06d", Random().nextInt(1_000_000))
-        val success = verificationCodeRepository.saveCode(request.email, code, Duration.ofMinutes(10))
-
-        if (success) {
-            emailService.sendVerificationCode(request.email, code)
-        } else {
-            throw RuntimeException("인증 코드 저장에 실패했습니다.")
-        }
-    }
-
-    suspend fun signUp(request: SignUpRequest): TokenResponse {
-        val savedCode = verificationCodeRepository.findCodeByEmail(request.email)
-            ?: throw InvalidTokenException("인증 코드가 만료되었거나 유효하지 않습니다.")
-
-        if (savedCode != request.code) {
-            throw InvalidTokenException("인증 코드가 일치하지 않습니다.")
+        if (memberRepository.existsByEmail(signUpRequest.email).awaitSingle()){
+            throw EmailDuplicateException("이미 가입된 이메일입니다.")
         }
 
         val member = Member(
-            email = request.email,
-            password = passwordEncoder.encode(request.password),
-            agreement = request.agreement,
+            email = signUpRequest.email,
+            password = passwordEncoder.encode(signUpRequest.password),
+            agreement = signUpRequest.agreement,
             provider = AuthProvider.LOCAL,
             role = setOf(MemberRole.USER)
         )
 
-        val savedMember = memberRepository.save(member).awaitSingle()
-
-        verificationCodeRepository.deleteCodeByEmail(request.email)
-
-        return jwtProvider.generateTokens(savedMember.id!!, savedMember.role)
+        memberRepository.save(member).awaitSingle()
     }
-
 
     suspend fun login(loginRequest: LoginRequest) : TokenResponse {
         val member = memberRepository.findByEmail(loginRequest.email).awaitSingleOrNull()

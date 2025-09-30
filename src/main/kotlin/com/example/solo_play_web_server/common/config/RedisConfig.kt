@@ -4,7 +4,6 @@ import com.example.solo_play_web_server.auth.entity.RefreshToken
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory
@@ -16,17 +15,28 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
 @Configuration
 class RedisConfig {
     @Bean
-    @Qualifier("verificationCodeRedisTemplate")
+    fun redisObjectMapper(): ObjectMapper {
+        return ObjectMapper().apply {
+            registerModule(KotlinModule.Builder().build())
+            registerModule(JavaTimeModule())
+        }
+    }
+
+    @Bean("verificationCodeRedisTemplate")
     fun verificationCodeRedisTemplate(factory: ReactiveRedisConnectionFactory): ReactiveRedisTemplate<String, String> {
         val serializer = StringRedisSerializer.UTF_8
         val serializationContext = RedisSerializationContext
-            .newSerializationContext<String, String>()
-            .key(serializer)
-            .value(serializer)
-            .hashKey(serializer)
-            .hashValue(serializer)
+            .newSerializationContext<String, String>(serializer)
             .build()
+        return ReactiveRedisTemplate(factory, serializationContext)
+    }
 
+    @Bean("signUpProofRedisTemplate")
+    fun signUpProofRedisTemplate(factory: ReactiveRedisConnectionFactory): ReactiveRedisTemplate<String, String> {
+        val serializer = StringRedisSerializer.UTF_8
+        val serializationContext = RedisSerializationContext
+            .newSerializationContext<String, String>(serializer)
+            .build()
         return ReactiveRedisTemplate(factory, serializationContext)
     }
 

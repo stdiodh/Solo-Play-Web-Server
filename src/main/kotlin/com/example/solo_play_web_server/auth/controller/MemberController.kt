@@ -1,10 +1,13 @@
 package com.example.solo_play_web_server.auth.controller
 
+import com.example.solo_play_web_server.auth.dto.CodeConfirmationRequest
+import com.example.solo_play_web_server.auth.dto.CodeConfirmationResponse
 import com.example.solo_play_web_server.auth.dto.EmailAvailabilityResponse
 import com.example.solo_play_web_server.auth.dto.EmailVerificationRequest
 import com.example.solo_play_web_server.auth.dto.LoginRequest
 import com.example.solo_play_web_server.auth.dto.SignUpRequest
 import com.example.solo_play_web_server.auth.dto.TokenResponse
+import com.example.solo_play_web_server.auth.service.EmailVerificationService
 import com.example.solo_play_web_server.auth.service.MemberService
 import com.example.solo_play_web_server.common.dto.ApiResponse
 import com.example.solo_play_web_server.common.dto.ResultStatus
@@ -25,41 +28,60 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/auth")
 class MemberController(
-    private val memberService: MemberService,
+    private val emailVerificationService: EmailVerificationService,
+    private val memberService: MemberService
 ) {
     @Operation(
         summary = "[signup] 이메일 검증",
         description = "회원의 이메일이 서버에 존재하는 지에 대한 여부를 확인합니다."
     )
-    @GetMapping("/email-check")
+    @GetMapping("/check-email-duplicate")
     suspend fun checkEmailAvailability(@RequestParam email: String): ResponseEntity<ApiResponse<EmailAvailabilityResponse>> {
         val isExist = memberService.isEmailAlreadyExists(email)
-        val isAvailable = !isExist
-        val responseData = EmailAvailabilityResponse(isAvailable = isAvailable)
-        val message = if (isAvailable) "사용 가능한 이메일입니다." else "이미 사용 중인 아이디에요."
 
-        return ResponseEntity.ok(ApiResponse(ResultStatus.SUCCESS, message, responseData))
+        return if (isExist) {
+            val responseData = EmailAvailabilityResponse(isAvailable = false)
+            val apiResponse = ApiResponse(ResultStatus.ERROR, "이미 사용 중인 아이디에요.", responseData)
+            ResponseEntity.status(HttpStatus.CONFLICT).body(apiResponse)
+        } else {
+            val responseData = EmailAvailabilityResponse(isAvailable = true)
+            val apiResponse = ApiResponse(ResultStatus.SUCCESS, "사용 가능한 이메일입니다.", responseData)
+            ResponseEntity.ok(apiResponse)
+        }
     }
 
-    @Operation(
-        summary = "[signup] 이메일 인증 코드 전송",
-        description = "회원의 이메일에 인증 메일을 발송합니다."
-    )
+    @Operation(summary = "[signup] 회원가입용 인증 코드 발송", description = "신규 회원가입을 위해 이메일로 인증 코드를 발송합니다.")
     @PostMapping("/email-verify")
-    suspend fun sendVerificationEmail(@Valid @RequestBody emailVerificationRequest: EmailVerificationRequest): ResponseEntity<ApiResponse<Void>> {
-        memberService.sendVerificationCode(emailVerificationRequest)
-        return ResponseEntity.ok(ApiResponse(ResultStatus.SUCCESS,"인증 코드를 발송했습니다. 이메일을 확인해주세요."))
+    suspend fun sendVerificationCodeForSignUp(@Valid @RequestBody request: EmailVerificationRequest): ResponseEntity<ApiResponse<Unit>> {
+        emailVerificationService.sendCodeForSignUp(request.email)
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(ApiResponse(status = ResultStatus.SUCCESS, message = "인증 코드를 발송했습니다. 이메일을 확인해주세요."))
     }
 
+
     @Operation(
-        summary = "[signup] 최종 회원가입",
-        description = "검증된 회원 정보와 이메일 인증이 성공했다면 회원가입이 성공되며 엑세스 토큰과 리프레쉬 토큰이 발급됩니다."
+        summary = "[signup] 회원가입용 인증 코드 확인 및 증표 발급",
+        description = "신규 회원가입을 위해 이메일로 인증 코드를 발송합니다."
+    )
+    @PostMapping("/email-confirm")
+    suspend fun sendVerificationCodeForSignUp(@Valid @RequestBody codeConfirmationRequest: CodeConfirmationRequest):
+            ResponseEntity<ApiResponse<CodeConfirmationResponse>>{
+        val responseData = emailVerificationService.verifyCodeAndIssueProofToken(codeConfirmationRequest.email, codeConfirmationRequest.code)
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(ApiResponse(status = ResultStatus.SUCCESS, message = "인증 코드가 확인되었습니다.", responseData))
+    }
+
+
+    @Operation(
+        summary = "[signup] 회원가입",
+        description = "인증된 이메일과 모든 회원 정보 그리고 인증 증표를 제출하여 가입이 완료됩니다."
     )
     @PostMapping("/signup")
-    suspend fun signUp(@Valid @RequestBody signUpRequest: SignUpRequest): ResponseEntity<ApiResponse<TokenResponse>> {
-        val tokenResponse = memberService.signUp(signUpRequest)
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponse(ResultStatus.SUCCESS, "회원가입이 완료되었습니다.", tokenResponse))
+    suspend fun signUp(@Valid @RequestBody signUpRequest: SignUpRequest): ResponseEntity<ApiResponse<Unit>>{
+        memberService.signUp(signUpRequest)
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            ApiResponse(status = ResultStatus.SUCCESS, message = "회원가입이 완료되었습니다.")
+        )
     }
 
     @Operation(
@@ -72,5 +94,4 @@ class MemberController(
         return ResponseEntity.status(HttpStatus.OK)
             .body(ApiResponse(status = ResultStatus.SUCCESS, message = "로그인에 성공했습니다.", data = tokenResponse))
     }
-
 }

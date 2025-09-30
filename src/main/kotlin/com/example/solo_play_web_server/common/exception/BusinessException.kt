@@ -6,3 +6,5 @@ open class BusinessException(override val message: String) : RuntimeException(me
 class EmailDuplicateException(message: String) : BusinessException(message)
 class LoginFailedException(message: String) : BusinessException(message)
 class InvalidTokenException(message: String) : BusinessException(message)
+class VerificationCodeException(message: String) : BusinessException(message)
+class SignUpProofException(message: String) : BusinessException(message)

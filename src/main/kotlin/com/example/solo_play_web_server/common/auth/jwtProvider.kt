@@ -26,7 +26,7 @@ class JwtProvider(
     private lateinit var key: Key
 
     @PostConstruct
-    protected fun init() {
+    internal fun init() {
         // secretKey를 HMAC-SHA 키 객체로 변환
         key = Keys.hmacShaKeyFor(secretKey.toByteArray(StandardCharsets.UTF_8))
     }

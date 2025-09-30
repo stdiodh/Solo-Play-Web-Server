@@ -21,17 +21,7 @@ data class SignUpRequest(
     @field:NotNull(message = "약관 동의 정보는 필수입니다.")
     val agreement : Agreement,
 
-    @field:NotBlank(message = "인증 코드를 입력해주세요.")
-    val code : String
-)
-
-data class EmailAvailabilityResponse(
-    val isAvailable: Boolean
-)
-
-data class EmailVerificationRequest(
-    @field:Email(message = "유효한 이메일 형식이 아닙니다.")
-    val email : String
+    val proofToken : String
 )
 
 data class Agreement(
@@ -43,13 +33,17 @@ data class Agreement(
     val isConsentedToAds : Boolean
 )
 
-data class PendingMember(
-    val email: String,
-    val password: String,
-    val agreement: Agreement
+data class EmailAvailabilityResponse(
+    val isAvailable: Boolean
 )
 
-data class VerificationData (
-    val pendingMember: PendingMember,
-    val code: String
+data class EmailVerificationRequest(
+    val email : String
+)
+
+data class CodeConfirmationRequest(val email: String, val code: String)
+
+data class CodeConfirmationResponse(
+    val isVerified: Boolean,
+    val proofToken: String?
 )

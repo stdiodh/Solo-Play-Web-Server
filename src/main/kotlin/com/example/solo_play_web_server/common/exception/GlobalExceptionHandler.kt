@@ -49,7 +49,7 @@ class GlobalExceptionHandler {
         val status = when (ex) {
             is EmailDuplicateException -> HttpStatus.CONFLICT
             is LoginFailedException -> HttpStatus.UNAUTHORIZED
-            is VerificationCodeException -> HttpStatus.BAD_REQUEST
+            is VerificationCodeException -> HttpStatus.UNAUTHORIZED
             is SignUpProofException -> HttpStatus.BAD_REQUEST
             else -> HttpStatus.BAD_REQUEST // 400
         }

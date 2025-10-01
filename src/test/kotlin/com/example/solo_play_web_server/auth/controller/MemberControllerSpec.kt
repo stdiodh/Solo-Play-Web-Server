@@ -3,6 +3,7 @@ package com.example.solo_play_web_server.auth.controller
 import com.example.solo_play_web_server.auth.dto.*
 import com.example.solo_play_web_server.auth.service.EmailVerificationService
 import com.example.solo_play_web_server.auth.service.MemberService
+import com.example.solo_play_web_server.common.exception.VerificationCodeException
 import com.ninjasquad.springmockk.MockkBean
 import io.kotest.core.spec.style.BehaviorSpec
 import io.mockk.coEvery
@@ -82,11 +83,14 @@ class MemberControllerSpec(
     }
 
     Given("인증 코드 확인 및 증표 발급 API (POST /email-confirm)") {
+        val email = "test@example.com"
+        val code = "123456"
+        val request = CodeConfirmationRequest(email, code)
+
         When("올바른 인증 코드로 요청하면") {
-            val request = CodeConfirmationRequest("test@example.com", "123456")
             val proofToken = "valid-proof-token"
-            coEvery { emailVerificationService.verifyCodeAndIssueProofToken(request.email, request.code) } returns
-                    CodeConfirmationResponse(isVerified = true, proofToken = proofToken)
+            val successResponse = CodeConfirmationResponse(proofToken = proofToken)
+            coEvery { emailVerificationService.verifyCodeAndIssueProofToken(request.email, request.code) } returns successResponse
 
             val response = webTestClient.post()
                 .uri("/api/auth/email-confirm")
@@ -94,11 +98,32 @@ class MemberControllerSpec(
                 .body(BodyInserters.fromValue(request))
                 .exchange()
 
-            Then("200 OK와 함께 isVerified: true와 proofToken을 반환한다") {
+            Then("200 OK와 함께 proofToken을 반환한다") {
                 response.expectStatus().isOk
                     .expectBody()
-                    .jsonPath("$.data.isVerified").isEqualTo(true)
+                    .jsonPath("$.status").isEqualTo("SUCCESS")
+                    .jsonPath("$.data.isVerified").doesNotExist()
                     .jsonPath("$.data.proofToken").isEqualTo(proofToken)
+            }
+        }
+
+        When("잘못된 인증 코드로 요청하면") {
+            coEvery {
+                emailVerificationService.verifyCodeAndIssueProofToken(request.email, request.code)
+            } throws VerificationCodeException("인증 코드가 일치하지 않거나 유효하지 않습니다.")
+
+            // Act
+            val response = webTestClient.post()
+                .uri("/api/auth/email-confirm")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
+                .exchange()
+
+            Then("401 UNAUTHORIZED와 함께 에러 메시지를 반환한다") {
+                response.expectStatus().is4xxClientError
+                    .expectBody()
+                    .jsonPath("$.status").isEqualTo("ERROR")
+                    .jsonPath("$.message").isEqualTo("인증 코드가 일치하지 않거나 유효하지 않습니다.")
             }
         }
     }

@@ -5,6 +5,7 @@ import com.example.solo_play_web_server.auth.repository.MemberRepository
 import com.example.solo_play_web_server.auth.repository.SignUpProofRepository
 import com.example.solo_play_web_server.auth.repository.VerificationCodeRepository
 import com.example.solo_play_web_server.common.exception.EmailDuplicateException
+import com.example.solo_play_web_server.common.exception.VerificationCodeException
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

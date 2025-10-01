@@ -44,13 +44,13 @@ class EmailVerificationService(
         val savedCode = verificationCodeRepository.findCodeByEmail(email)
 
         if (savedCode == null || savedCode != code) {
-            return CodeConfirmationResponse(isVerified = false, proofToken = null)
+            throw VerificationCodeException("인증 코드가 일치하지 않거나 유효하지 않습니다.")
         }
-        verificationCodeRepository.deleteByEmail(email) // 사용된 코드는 삭제
 
-        // 새로운 증표를 발급
+        verificationCodeRepository.deleteByEmail(email)
+
         val proofToken = signUpProofRepository.issueProof(email)
 
-        return CodeConfirmationResponse(isVerified = true, proofToken = proofToken)
+        return CodeConfirmationResponse(proofToken = proofToken)
     }
 }

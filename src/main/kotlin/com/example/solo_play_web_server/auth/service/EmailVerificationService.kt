@@ -45,7 +45,7 @@ class EmailVerificationService(
         val savedCode = verificationCodeRepository.findCodeByEmail(email)
 
         if (savedCode == null || savedCode != code) {
-            throw VerificationCodeException("인증 코드가 일치하지 않거나 유효하지 않습니다.")
+            throw VerificationCodeException("인증코드가 틀렸습니다.")
         }
 
         verificationCodeRepository.deleteByEmail(email)

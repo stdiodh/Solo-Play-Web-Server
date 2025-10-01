@@ -5,6 +5,7 @@ import com.example.solo_play_web_server.auth.repository.MemberRepository
 import com.example.solo_play_web_server.auth.repository.SignUpProofRepository
 import com.example.solo_play_web_server.auth.repository.VerificationCodeRepository
 import com.example.solo_play_web_server.common.exception.EmailDuplicateException
+import com.example.solo_play_web_server.common.exception.VerificationCodeException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
@@ -59,24 +60,25 @@ class EmailVerificationServiceSpec : BehaviorSpec() {
             val code = "123456"
             val proofToken = "valid-proof-token"
 
-            When("인증 코드가 일치하면") {
-                coEvery { verificationCodeRepository.findCodeByEmail(email) } returns code
-                coEvery { verificationCodeRepository.deleteByEmail(email) } returns true
-                coEvery { signUpProofRepository.issueProof(email) } returns proofToken
+            When("저장된 인증 코드가 없어 null을 반환하면") {
+                coEvery { verificationCodeRepository.findCodeByEmail(email) } returns null
 
-                val result = emailVerificationService.verifyCodeAndIssueProofToken(email, code)
-
-                Then("코드가 삭제되고, 인증 성공(true) 및 증표가 발급된다") {
-                    result shouldBe CodeConfirmationResponse(isVerified = true, proofToken = proofToken)
-                    coVerify(exactly = 1) { verificationCodeRepository.deleteByEmail(email) }
-                    coVerify(exactly = 1) { signUpProofRepository.issueProof(email) }
+                Then("VerificationCodeException 예외가 발생한다") {
+                    shouldThrow<VerificationCodeException> {
+                        emailVerificationService.verifyCodeAndIssueProofToken(email, code)
+                    }
+                    coVerify(exactly = 0) { verificationCodeRepository.deleteByEmail(any()) }
+                    coVerify(exactly = 0) { signUpProofRepository.issueProof(any()) }
                 }
             }
-            When("인증 코드가 일치하지 않으면") {
+
+            When("저장된 인증 코드가 일치하지 않으면") {
                 coEvery { verificationCodeRepository.findCodeByEmail(email) } returns "wrong-code"
-                val result = emailVerificationService.verifyCodeAndIssueProofToken(email, code)
-                Then("인증 실패(false) 및 증표는 발급되지 않는다") {
-                    result shouldBe CodeConfirmationResponse(isVerified = false, proofToken = null)
+
+                Then("VerificationCodeException 예외가 발생한다") {
+                    shouldThrow<VerificationCodeException> {
+                        emailVerificationService.verifyCodeAndIssueProofToken(email, code)
+                    }
                     coVerify(exactly = 0) { verificationCodeRepository.deleteByEmail(any()) }
                     coVerify(exactly = 0) { signUpProofRepository.issueProof(any()) }
                 }

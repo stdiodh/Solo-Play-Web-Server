@@ -110,7 +110,7 @@ class MemberControllerSpec(
         When("잘못된 인증 코드로 요청하면") {
             coEvery {
                 emailVerificationService.verifyCodeAndIssueProofToken(request.email, request.code)
-            } throws VerificationCodeException("인증 코드가 일치하지 않거나 유효하지 않습니다.")
+            } throws VerificationCodeException("인증코드가 틀렸습니다.")
 
             // Act
             val response = webTestClient.post()
@@ -123,7 +123,7 @@ class MemberControllerSpec(
                 response.expectStatus().is4xxClientError
                     .expectBody()
                     .jsonPath("$.status").isEqualTo("ERROR")
-                    .jsonPath("$.message").isEqualTo("인증 코드가 일치하지 않거나 유효하지 않습니다.")
+                    .jsonPath("$.message").isEqualTo("인증코드가 틀렸습니다.")
             }
         }
     }

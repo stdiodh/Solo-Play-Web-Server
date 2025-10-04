@@ -4,7 +4,6 @@ import com.example.solo_play_web_server.auth.dto.LoginRequest
 import com.example.solo_play_web_server.auth.dto.SignUpRequest
 import com.example.solo_play_web_server.auth.dto.TokenResponse
 import com.example.solo_play_web_server.auth.entity.Member
-import com.example.solo_play_web_server.auth.entity.RefreshToken
 import com.example.solo_play_web_server.auth.enum.AuthProvider
 import com.example.solo_play_web_server.auth.enum.MemberRole
 import com.example.solo_play_web_server.auth.repository.MemberRepository
@@ -26,7 +25,7 @@ class MemberService (
     private val memberRepository : MemberRepository,
     private val passwordEncoder : PasswordEncoder,
     private val jwtProvider: JwtProvider,
-    private val refreshTokenRepository: RefreshTokenRepository
+    private val refreshTokenRepository: RefreshTokenRepository,
     private val signUpProofRepository: SignUpProofRepository
 ){
     @Transactional(readOnly = true)
@@ -71,5 +70,9 @@ class MemberService (
         )
 
         return tokens
+    }
+
+    suspend fun logout(userId: String) {
+        refreshTokenRepository.deleteByUserId(userId)
     }
 }

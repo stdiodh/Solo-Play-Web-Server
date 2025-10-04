@@ -20,7 +20,14 @@ class RefreshTokenRepository(
     override val keyPrefix = "refreshToken:"
     private val TTL: Duration get() = Duration.ofMillis(refreshTokenExpiryMs)
 
-    suspend fun save(refreshToken: RefreshToken) = save(refreshToken.userId, refreshToken, TTL)
+    suspend fun save(userId: String, token: String) {
+        val refreshToken = RefreshToken(
+            userId = userId,
+            token = token,
+            expiry = refreshTokenExpiryMs / 1000
+        )
+        save(userId, refreshToken, TTL)
+    }
     suspend fun findByUserId(userId: String) = find(userId)
     suspend fun deleteByUserId(userId: String) = delete(userId)
 }

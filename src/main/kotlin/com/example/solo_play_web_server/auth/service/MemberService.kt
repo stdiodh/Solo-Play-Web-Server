@@ -4,6 +4,7 @@ import com.example.solo_play_web_server.auth.dto.LoginRequest
 import com.example.solo_play_web_server.auth.dto.SignUpRequest
 import com.example.solo_play_web_server.auth.dto.TokenResponse
 import com.example.solo_play_web_server.auth.entity.Member
+import com.example.solo_play_web_server.auth.entity.RefreshToken
 import com.example.solo_play_web_server.auth.enum.AuthProvider
 import com.example.solo_play_web_server.auth.enum.MemberRole
 import com.example.solo_play_web_server.auth.repository.MemberRepository
@@ -54,12 +55,21 @@ class MemberService (
 
     suspend fun login(loginRequest: LoginRequest) : TokenResponse {
         val member = memberRepository.findByEmail(loginRequest.email).awaitSingleOrNull()
-            ?: throw LoginFailedException("존재하지 않는 계정입니다. 회원가입 하시겠습니까?")
+            ?: throw LoginFailedException("존재하지 않는 계정입니다.")
 
         if (!passwordEncoder.matches(loginRequest.password, member.password)) {
             throw LoginFailedException("사용자 이름 또는 비밀번호가 올바르지 않습니다.")
         }
 
-        return jwtProvider.generateTokens(member.id!!, member.role)
+        val tokens = jwtProvider.generateTokens(member.id!!, member.role)
+
+        val refreshToken = RefreshToken(
+            userId = member.id!!,
+            token = tokens.refreshToken,
+            expiry = refreshTokenExpiryMs / 1000
+        )
+        refreshTokenRepository.save(refreshToken)
+
+        return tokens
     }
 }

@@ -127,7 +127,19 @@ class MemberServiceSpec : BehaviorSpec() {
                 }
             }
         }
+
+        Given("로그아웃(logout) 시") {
+            val userId = "user-id-123"
+
+            When("사용자 ID로 로그아웃을 요청하면") {
+                coEvery { refreshTokenRepository.deleteByUserId(userId) } returns true
+
+                memberService.logout(userId)
+
+                Then("해당 사용자의 Refresh Token이 삭제된다") {
+                    coVerify(exactly = 1) { refreshTokenRepository.deleteByUserId(userId) }
+                }
+            }
+        }
     }
-
-
 }

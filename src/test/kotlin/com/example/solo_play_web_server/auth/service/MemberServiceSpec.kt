@@ -5,6 +5,7 @@ import com.example.solo_play_web_server.auth.entity.Member
 import com.example.solo_play_web_server.auth.enum.AuthProvider
 import com.example.solo_play_web_server.auth.enum.MemberRole
 import com.example.solo_play_web_server.auth.repository.MemberRepository
+import com.example.solo_play_web_server.auth.repository.RefreshTokenRepository
 import com.example.solo_play_web_server.auth.repository.SignUpProofRepository
 import com.example.solo_play_web_server.common.auth.JwtProvider
 import com.example.solo_play_web_server.common.exception.LoginFailedException
@@ -27,6 +28,8 @@ class MemberServiceSpec : BehaviorSpec() {
     lateinit var jwtProvider: JwtProvider
     @MockK
     lateinit var signUpProofRepository: SignUpProofRepository
+    @MockK
+    lateinit var refreshTokenRepository: RefreshTokenRepository
 
     @InjectMockKs
     lateinit var memberService: MemberService
@@ -90,10 +93,14 @@ class MemberServiceSpec : BehaviorSpec() {
                 every { passwordEncoder.matches(loginRequest.password, member.password) } returns true
                 every { jwtProvider.generateTokens(member.id!!, member.role) } returns tokenResponse
 
+                coEvery { refreshTokenRepository.save(any(), any()) } just runs
+
                 val result = memberService.login(loginRequest)
 
-                Then("성공적으로 로그인이되고 토큰이 발급된다."){
+                Then("성공적으로 로그인이 되고 토큰이 발급되며, Refresh Token이 저장된다"){
                     result shouldBe tokenResponse
+
+                    coVerify(exactly = 1) { refreshTokenRepository.save(member.id!!, tokenResponse.refreshToken) }
                 }
             }
 
@@ -121,4 +128,6 @@ class MemberServiceSpec : BehaviorSpec() {
             }
         }
     }
+
+
 }

@@ -56,7 +56,7 @@ class MemberService (
 
     suspend fun login(loginRequest: LoginRequest) : TokenResponse {
         val member = memberRepository.findByEmail(loginRequest.email).awaitSingleOrNull()
-            ?: throw LoginFailedException("존재하지 않는 계정입니다.")
+            ?: throw LoginFailedException("존재하지 않는 계정입니다. 회원가입 하시겠습니까?")
 
         if (!passwordEncoder.matches(loginRequest.password, member.password)) {
             throw LoginFailedException("사용자 이름 또는 비밀번호가 올바르지 않습니다.")

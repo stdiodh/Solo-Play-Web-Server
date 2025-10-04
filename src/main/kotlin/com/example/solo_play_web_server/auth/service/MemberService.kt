@@ -8,6 +8,7 @@ import com.example.solo_play_web_server.auth.entity.RefreshToken
 import com.example.solo_play_web_server.auth.enum.AuthProvider
 import com.example.solo_play_web_server.auth.enum.MemberRole
 import com.example.solo_play_web_server.auth.repository.MemberRepository
+import com.example.solo_play_web_server.auth.repository.RefreshTokenRepository
 import com.example.solo_play_web_server.auth.repository.SignUpProofRepository
 import com.example.solo_play_web_server.common.auth.JwtProvider
 import com.example.solo_play_web_server.common.exception.EmailDuplicateException
@@ -25,6 +26,7 @@ class MemberService (
     private val memberRepository : MemberRepository,
     private val passwordEncoder : PasswordEncoder,
     private val jwtProvider: JwtProvider,
+    private val refreshTokenRepository: RefreshTokenRepository
     private val signUpProofRepository: SignUpProofRepository
 ){
     @Transactional(readOnly = true)
@@ -63,12 +65,10 @@ class MemberService (
 
         val tokens = jwtProvider.generateTokens(member.id!!, member.role)
 
-        val refreshToken = RefreshToken(
-            userId = member.id!!,
-            token = tokens.refreshToken,
-            expiry = refreshTokenExpiryMs / 1000
+        refreshTokenRepository.save(
+            userId = member.id,
+            token = tokens.refreshToken
         )
-        refreshTokenRepository.save(refreshToken)
 
         return tokens
     }

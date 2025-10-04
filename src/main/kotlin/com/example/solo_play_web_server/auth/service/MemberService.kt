@@ -7,6 +7,7 @@ import com.example.solo_play_web_server.auth.entity.Member
 import com.example.solo_play_web_server.auth.enum.AuthProvider
 import com.example.solo_play_web_server.auth.enum.MemberRole
 import com.example.solo_play_web_server.auth.repository.MemberRepository
+import com.example.solo_play_web_server.auth.repository.RefreshTokenRepository
 import com.example.solo_play_web_server.auth.repository.SignUpProofRepository
 import com.example.solo_play_web_server.common.auth.JwtProvider
 import com.example.solo_play_web_server.common.exception.EmailDuplicateException
@@ -24,6 +25,7 @@ class MemberService (
     private val memberRepository : MemberRepository,
     private val passwordEncoder : PasswordEncoder,
     private val jwtProvider: JwtProvider,
+    private val refreshTokenRepository: RefreshTokenRepository,
     private val signUpProofRepository: SignUpProofRepository
 ){
     @Transactional(readOnly = true)
@@ -60,6 +62,17 @@ class MemberService (
             throw LoginFailedException("사용자 이름 또는 비밀번호가 올바르지 않습니다.")
         }
 
-        return jwtProvider.generateTokens(member.id!!, member.role)
+        val tokens = jwtProvider.generateTokens(member.id!!, member.role)
+
+        refreshTokenRepository.save(
+            userId = member.id,
+            token = tokens.refreshToken
+        )
+
+        return tokens
+    }
+
+    suspend fun logout(userId: String) {
+        refreshTokenRepository.deleteByUserId(userId)
     }
 }

@@ -35,10 +35,10 @@ class SecurityConfig {
                 ).permitAll()
                     it.pathMatchers(
                         "/api/auth/signup/**",
-                        "/api/auth/email-check",
+                        "/api/auth/check-email-duplicate",
                         "/api/auth/email-verify",
-                        "/api/auth/login",
-                        "/api/places/**"
+                        "/api/auth/email-confirm",
+                        "/api/auth/login"
                     ).permitAll()
                     .anyExchange().authenticated()
             }

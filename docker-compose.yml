@@ -46,6 +46,10 @@ services:
       GOOGLE_ID: ${GOOGLE_ID}
       APP_PASSWORD: ${APP_PASSWORD}
 
+      KAKAO_API_KEY: ${KAKAO_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_API_URL: ${GEMINI_API_URL}
+
     depends_on:
       - mongodb
       - redis

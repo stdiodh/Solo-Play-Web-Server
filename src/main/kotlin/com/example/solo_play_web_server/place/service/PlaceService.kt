@@ -1,6 +1,6 @@
 package com.example.solo_play_web_server.place.service
 
-import com.example.solo_play_web_server.place.dto.RecommendPlaceResponse
+import com.example.solo_play_web_server.place.dto.RecommendPlaceByLevelResponse
 import com.example.solo_play_web_server.place.entity.KakaoPlace
 import com.example.solo_play_web_server.place.entity.Place
 import com.example.solo_play_web_server.place.enum.Level
@@ -114,14 +114,14 @@ class PlaceService (
         }
     }
 
-    suspend fun getRecommendedPlacesByLevel(level: Level): List<RecommendPlaceResponse> {
+    suspend fun getRecommendedPlacesByLevel(level: Level): List<RecommendPlaceByLevelResponse> {
         val places = placeRepository.findRandom10ByLevel(level)
         return places.map { place ->
-            RecommendPlaceResponse(
+            RecommendPlaceByLevelResponse(
                 level = place.level,
                 imageUrl = place.urls.firstOrNull(),
-                displayTitle = place.displayTitle,
                 placeName = place.placeName,
+                displayTitle = place.displayTitle,
                 area = place.area,
                 displayTags = place.displayTags.filterNotNull()
             )

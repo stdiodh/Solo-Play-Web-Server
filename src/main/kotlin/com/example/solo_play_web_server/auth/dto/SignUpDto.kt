@@ -44,6 +44,5 @@ data class EmailVerificationRequest(
 data class CodeConfirmationRequest(val email: String, val code: String)
 
 data class CodeConfirmationResponse(
-    val isVerified: Boolean,
-    val proofToken: String?
+    val proofToken: String
 )

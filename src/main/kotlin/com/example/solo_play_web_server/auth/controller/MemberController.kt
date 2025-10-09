@@ -16,6 +16,8 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.userdetails.User
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -93,5 +95,14 @@ class MemberController(
         val tokenResponse = memberService.login(loginRequest)
         return ResponseEntity.status(HttpStatus.OK)
             .body(ApiResponse(status = ResultStatus.SUCCESS, message = "로그인에 성공했습니다.", data = tokenResponse))
+    }
+
+    @Operation(summary = "[logout] 로그아웃", description = "서버에 저장된 리프레시 토큰을 삭제하여 현재 세션을 무효화합니다.")
+    @PostMapping("/logout")
+    suspend fun logout(
+        @AuthenticationPrincipal user: User
+    ): ResponseEntity<ApiResponse<Unit>> {
+        memberService.logout(user.username)
+        return ResponseEntity.ok(ApiResponse(status = ResultStatus.SUCCESS, message = "로그아웃되었습니다."))
     }
 }

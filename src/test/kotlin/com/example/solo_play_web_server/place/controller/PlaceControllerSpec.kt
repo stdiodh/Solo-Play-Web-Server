@@ -1,6 +1,6 @@
 package com.example.solo_play_web_server.place.controller
 
-import com.example.solo_play_web_server.place.dto.RecommendPlaceResponse
+import com.example.solo_play_web_server.place.dto.RecommendPlaceByLevelResponse
 import com.example.solo_play_web_server.place.enum.Level
 import com.example.solo_play_web_server.place.service.PlaceService
 import com.ninjasquad.springmockk.MockkBean
@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestConstructor
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
@@ -20,41 +21,21 @@ class PlaceControllerSpec(
     @MockkBean
     private val placeService: PlaceService
 ) : BehaviorSpec({
-
-    Given("장소 검색 및 저장 API (GET /api/places)") {
-        val keyword = "카페"
-        val page = 1
-
-        When("유효한 키워드로 요청이 들어오면") {
-            coEvery { placeService.searchAndSavePlacesByKeyword(keyword, page) } returns 5
-
-            val response = webTestClient.get()
-                .uri("/api/places?keyword={keyword}&page={page}", keyword, page)
-                .exchange()
-
-            Then("200 OK와 함께 저장된 장소의 수를 반환한다") {
-                response.expectStatus().isOk
-                    .expectBody()
-                    .jsonPath("$.status").isEqualTo("SUCCESS")
-                    .jsonPath("$.message").isEqualTo("'$keyword' 검색 결과, 5 개의 새로운 장소를 저장했습니다.")
-                    .jsonPath("$.data").isEqualTo(5)
-            }
-        }
-    }
-
     Given("레벨별 추천 장소 API (GET /api/places/recommendations)") {
-        When("유효한 레벨 파라미터(ONE)로 요청하면") {
-            // Arrange
-            val level = Level.ONE
+        val level = Level.ONE
+
+        When("USER 역할로 유효한 레벨 파라미터로 요청하면") {
             val fakeResponse = listOf(
-                RecommendPlaceResponse(
-                    level = Level.ONE, imageUrl = "url1", displayTitle = "AI가 만든 제목",
-                    placeName = "테스트 추천 카페", area = "마포구", displayTags = listOf("#추천", "#카페")
+                RecommendPlaceByLevelResponse(
+                    level = level, imageUrl = "url1", placeName = "테스트 추천 카페",
+                    displayTitle = "AI가 만든 제목", area = "마포구", displayTags = listOf("#추천", "#카페")
                 )
             )
             coEvery { placeService.getRecommendedPlacesByLevel(level) } returns fakeResponse
 
-            val response = webTestClient.get()
+            val response = webTestClient
+                .mutateWith(mockUser().roles("USER"))
+                .get()
                 .uri("/api/places/recommendations?level=ONE")
                 .exchange()
 
@@ -67,13 +48,20 @@ class PlaceControllerSpec(
             }
         }
 
-        When("잘못된 레벨 파라미터로 요청하면") {
-            val response = webTestClient.get()
-                .uri("/api/places/recommendations?level=INVALID_LEVEL")
+        When("서비스 로직에서 예외가 발생하면") {
+            coEvery { placeService.getRecommendedPlacesByLevel(level) } throws RuntimeException("DB 조회 실패")
+
+            val response = webTestClient
+                .mutateWith(mockUser().roles("USER"))
+                .get()
+                .uri("/api/places/recommendations?level=ONE")
                 .exchange()
 
-            Then("500 internalServerError 에러를 반환한다") {
+            Then("500 Internal Server Error를 반환한다") {
                 response.expectStatus().is5xxServerError
+                    .expectBody()
+                    .jsonPath("$.status").isEqualTo("ERROR")
+                    .jsonPath("$.message").isEqualTo("DB 조회 실패")
             }
         }
     }

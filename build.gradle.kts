@@ -26,6 +26,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
 	// 테스트 용 의존성 추가
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
@@ -36,6 +37,8 @@ dependencies {
 	testImplementation("io.projectreactor:reactor-test:3.7.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("com.ninja-squad:springmockk:4.0.2")
+	testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+	testImplementation("io.projectreactor:reactor-test")
 
 	// swaager
 	implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.3.0")

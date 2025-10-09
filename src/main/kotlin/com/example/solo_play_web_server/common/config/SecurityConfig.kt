@@ -9,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.server.SecurityWebFilterChain
 
 @Configuration
-@EnableWebFluxSecurity // ⭐️ WebFlux 환경의 Spring Security 설정을 활성화합니다.
+@EnableWebFluxSecurity
 class SecurityConfig {
 
     @Bean
@@ -33,12 +33,12 @@ class SecurityConfig {
                     "/v3/api-docs/**",
                     "/webjars/**"
                 ).permitAll()
-                    .pathMatchers(
+                    it.pathMatchers(
                         "/api/auth/signup/**",
-                        "/api/auth/check-email-duplicate",
+                        "/api/auth/email-check",
                         "/api/auth/email-verify",
-                        "/api/auth/email-confirm",
-                        "/api/auth/login"
+                        "/api/auth/login",
+                        "/api/places/**"
                     ).permitAll()
                     .anyExchange().authenticated()
             }

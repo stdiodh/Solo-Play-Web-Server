@@ -1,53 +1,66 @@
-# 🎮 SoloPlay
+# Solo-Play Web Server
+> **한 줄 소개**: 1인 사용자 맞춤 활동 추천을 위한 인증·추천·외부 API 연동 백엔드
 
-**A&I 2기 2팀의 본 프로젝트입니다!**  
-혼자 사는 사용자(솔플러)를 위한 맞춤 놀이 추천 앱, **SoloPlay**를 소개합니다.
+## 1. 프로젝트 개요 (Overview)
+- **개발 기간**: 2024.10 ~ 진행 중
+- **개발 인원**: 백엔드 1명, 프론트 협업
+- **프로젝트 목적**: 사용자 인증과 추천 데이터 파이프라인을 결합해 개인화된 솔로 라이프 추천 제공
+- **GitHub**: https://github.com/stdiodh/Solo-Play-Web-Server
 
-## 👨‍🏫 프로젝트 소개
+## 2. 사용 기술 및 선정 이유 (Tech Stack & Decision)
 
-**SoloPlay**는 혼자 사는 1인 가구 사용자들을 위한 **맞춤형 놀이 추천 앱**입니다.  
-사용자의 생활 패턴을 분석하여 적절한 활동을 제안하고,  
-커뮤니티를 통해 다양한 솔로 라이프 경험을 공유할 수 있도록 지원합니다.
+| Category | Tech Stack | Version | Decision Reason (Why?) |
+| --- | --- | --- | --- |
+| **Language** | Kotlin | 1.9.25 | 도메인 모델과 서비스 로직을 간결하게 유지하고 null 안정성 확보 |
+| **Framework** | Spring Boot + WebFlux + Security | 3.3.5 | 외부 API 연동과 인증 처리를 비동기/보안 구조로 일관성 있게 구성 |
+| **Database** | MongoDB | - | 추천 장소/사용자 데이터의 유연한 문서 스키마 관리 목적 |
+| **Cache** | Redis | - | 인증/검증 코드와 단기 상태 데이터의 TTL 기반 관리 |
+| **External** | Kakao API, Gemini API, SMTP | - | 장소 데이터 확장, 추천 고도화, 이메일 인증 자동화 |
 
+## 3. 시스템 아키텍처 (System Architecture)
+```mermaid
+graph TD
+  Client --> API[Spring Boot API]
+  API --> Mongo[(MongoDB)]
+  API --> Redis[(Redis)]
+  API --> Kakao[Kakao API]
+  API --> Gemini[Gemini API]
+  API --> Mail[SMTP]
+```
 
-## ⏰ 개발 기간
+- **설계 특징**:
+- `auth` / `place` / `common` 패키지로 기능 경계 분리
+- JWT + RefreshToken 저장소를 분리해 인증 수명주기 명확화
+- 외부 API 호출은 서비스 계층으로 캡슐화하여 교체 가능성 확보
 
-- **2024년 10월 28일 ~ 진행 중**
-- 현재 저장소는 **Back-End Repository**입니다.
+## 4. 핵심 기능 (Key Features)
+- **회원 인증**: 회원가입/로그인/JWT 발급/토큰 재발급 흐름 제공
+- **이메일 인증**: 인증 코드 발급 및 검증 기반 가입 절차 지원
+- **장소 추천**: 카테고리/지역 기반 장소 탐색 및 추천 처리
+- **외부 데이터 보강**: Kakao/Gemini 연동으로 장소 정보/설명 보강
 
-## 👥 프로젝트 팀원
+## 5. 트러블 슈팅 및 성능 개선 (Troubleshooting & Refactoring)
+### 5-1. 외부 API 연동 실패 전파 제어
+- **문제(Problem)**: 외부 API 응답 지연/실패가 추천 API 전체 실패로 이어질 위험
+- **원인(Cause)**: 추천 응답 조합 단계에서 외부 호출 예외를 직접 전파하면 사용자 응답까지 실패
+- **해결(Solution)**:
+  1. 외부 연동 로직을 `KakaoApiService`, `PlaceEnrichmentService`로 분리
+  2. 예외를 공통 예외 핸들러로 일원화해 응답 형식을 고정
+- **검증(Verification)**: 외부 API 키 누락/타임아웃 시나리오에서 에러 응답 포맷 일관성 확인
+- **결과(Result)**: 장애 원인 구분이 쉬워지고 API 실패 분석 시간 단축
 
-| Front-End | Front-End | Back-End |
-|:--:|:--:|:--:|
-| <img src="https://github.com/user-attachments/assets/3e22107e-3e30-44d5-8d4a-61cfbab8eac2" width="100"/> | <img src="https://github.com/user-attachments/assets/18293112-b6d5-4b4d-b45f-3cc73774ce3d" width="100"/> | <img src="https://github.com/user-attachments/assets/a51e908a-f9ca-4819-a36a-5f26da14a3aa" width="100"/> |
-| [Han Sang Wook](https://github.com/SangWook16074) | [Kim Dong Wook](https://github.com/SangWook16074) | [Hood](https://github.com/stdiodh) |
+### 5-2. 인증/검증 상태 데이터 관리 일관성
+- **문제(Problem)**: 인증 코드/토큰 상태가 분산되면 만료 정책 누락 위험
+- **원인(Cause)**: 기능별로 TTL 처리 방식이 다르면 만료/삭제 타이밍 불일치 발생
+- **해결(Solution)**:
+  1. Redis 저장소 계층(`AbstractRedisRepository`)로 TTL 정책 공통화
+  2. 인증/토큰 저장소를 도메인별로 분리해 책임 명확화
+- **검증(Verification)**: 인증 코드/토큰 발급 후 만료 시점 재조회 테스트로 삭제 동작 확인
+- **결과(Result)**: 만료 데이터 정리와 인증 흐름 유지보수성 향상
 
+## 6. 프로젝트 회고 (Retrospective)
+- **배운 점**: 추천 서비스는 모델보다 인증/외부연동 안정성 확보가 먼저 필요
+- **아쉬운 점 & 향후 계획**: 추천 품질 지표(클릭률/재방문)를 측정할 관측 지표를 추가할 계획
 
-## ⚙️ 기술 스택
-
-### 🛠 Back-End
-
-| Kotlin | Spring Boot | MongoDB | AWS EC2 | Docker | GitHub Actions |
-|:--:|:--:|:--:|:--:|:--:|:--:|
-| <img src="https://github.com/user-attachments/assets/80ae7152-6b52-477e-bee7-504e46119af2" width="50"/> | <img src="https://github.com/user-attachments/assets/f0a5c7a5-1ea5-486f-884e-f404e227f9d4" width="50"/> | <img src="https://github.com/user-attachments/assets/b1e27d13-222d-47f0-b25a-98d975283be3" width="50"/> | <img src="https://github.com/user-attachments/assets/1e5aaa79-0a47-4e20-9023-6ebd930d1716" width="50"/> | <img src="https://github.com/user-attachments/assets/8531285b-ac7a-43c5-a856-7dd15bbf1ed5" width="50"/> | <img src="https://simpleicons.org/icons/githubactions.svg" width="50"/> |
-
-
-## 📌 주요 기능
-
-- 사용자의 **생활 패턴 분석**을 기반으로 한 놀이 코스 추천
-- **데일리 추천 기능**으로 다양한 솔플 활동을 제공
-- **솔플러 커뮤니티** 기능으로 후기 공유 및 교류
-- **사용자 피드백을 반영한 맞춤 추천 최적화**
-
-
-## 🧩 기여 방법 (Contribution Guide)
-
-1. 본 레포지토리를 **포크(Fork)** 합니다.
-2. 새로운 기능을 위한 브랜치를 **생성**합니다.
-3. 기능을 개발 및 수정합니다.
-4. 완료되면 **Pull Request(PR)** 를 보내 팀원들과 리뷰 및 병합합니다.
-
-
-## 📬 문의
-
-- 프로젝트와 관련된 문의는 각 팀원에게 직접 연락 부탁드립니다.
+## 7. API 명세
+- API 요약 문서: `/Users/dh/Desktop/Code/Project/Soloplay/Solo-Play-Web-Server/docs/API_SPEC.md`

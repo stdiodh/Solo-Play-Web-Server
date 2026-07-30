@@ -1,9 +1,8 @@
 package com.example.solo_play_web_server.auth.service
 
 import jakarta.mail.internet.MimeMessage
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
@@ -16,7 +15,7 @@ class EmailService (
     private val templateEngine: SpringTemplateEngine
 ){
     suspend fun sendVerificationCode(toEmail: String, code: String) {
-        CoroutineScope(Dispatchers.IO).launch {
+        withContext(Dispatchers.IO) {
             val message: MimeMessage = mailSender.createMimeMessage()
             val helper = MimeMessageHelper(message, true, "UTF-8")
 

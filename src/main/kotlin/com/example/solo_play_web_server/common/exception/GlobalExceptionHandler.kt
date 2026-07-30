@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.bind.support.WebExchangeBindException
+import org.springframework.web.server.ServerWebInputException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -29,6 +30,17 @@ class GlobalExceptionHandler {
             status = ResultStatus.ERROR,
             message = "입력값 유효성 검사에 실패했습니다.",
             data = details
+        )
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response)
+    }
+
+    @ExceptionHandler(ServerWebInputException::class)
+    fun handleInputException(ex: ServerWebInputException): ResponseEntity<ApiResponse<Void>> {
+        logger.warn("Invalid request input: {}", ex.reason)
+
+        val response = ApiResponse<Void>(
+            status = ResultStatus.ERROR,
+            message = "입력값이 올바르지 않습니다."
         )
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response)
     }

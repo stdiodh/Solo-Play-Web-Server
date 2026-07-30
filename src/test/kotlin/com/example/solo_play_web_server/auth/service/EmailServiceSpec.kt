@@ -40,8 +40,8 @@ class EmailServiceSpec : BehaviorSpec() {
                 emailService.sendVerificationCode(toEmail, code)
 
                 Then("메일 전송 로직이 호출된다") {
-                    verify(timeout = 1000, exactly = 1) { templateEngine.process(any<String>(), any<Context>()) }
-                    verify(timeout = 1000, exactly = 1) { mailSender.send(any<MimeMessage>()) }
+                    verify(exactly = 1) { templateEngine.process(any<String>(), any<Context>()) }
+                    verify(exactly = 1) { mailSender.send(any<MimeMessage>()) }
                 }
             }
         }

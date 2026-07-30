@@ -5,27 +5,39 @@ import com.example.solo_play_web_server.place.dto.GeminiApiResponse
 import com.example.solo_play_web_server.place.entity.Place
 import com.example.solo_play_web_server.place.repository.PlaceRepository
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactor.awaitSingle
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 
 @Service
-class PlaceEnrichmentService(
+class PlaceEnrichmentService internal constructor(
     private val placeRepository: PlaceRepository,
-    @Qualifier("geminiWebClient") private val webClient: WebClient
+    private val webClient: WebClient,
+    private val enrichmentScope: CoroutineScope
 ) {
+    @Autowired
+    constructor(
+        placeRepository: PlaceRepository,
+        @Qualifier("geminiWebClient") webClient: WebClient
+    ) : this(
+        placeRepository,
+        webClient,
+        CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    )
+
     private val logger = LoggerFactory.getLogger(javaClass)
     private val objectMapper = jacksonObjectMapper()
 
-    @Async
-    fun enrichPlaceData(place: Place) {
-        CoroutineScope(Dispatchers.IO).launch {
+    fun enrichPlaceData(place: Place): Job {
+        return enrichmentScope.launch {
             try {
                 val requestBody = createGeminiRequestBody(place)
                 val response = webClient.post()

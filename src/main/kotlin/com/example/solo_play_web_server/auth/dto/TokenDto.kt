@@ -5,7 +5,3 @@ data class TokenResponse (
     val accessToken : String,
     val refreshToken : String
 )
-
-data class TokenReissueRequest(
-    val refreshToken : String
-)

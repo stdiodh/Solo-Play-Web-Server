@@ -23,7 +23,7 @@ class PlaceService (
         val apiResponse = kakaoApiService.searchPlacesByKeyword(keyword, page).awaitSingle()
 
         val placesToSave = mutableListOf<Place>()
-        for (kakaoPlace in apiResponse.documents) {
+        for (kakaoPlace in apiResponse.documents.distinctBy { it.id }) {
             if (placeRepository.findByKakaoPlaceId(kakaoPlace.id) == null) {
                 val place = toPlaceDocument(kakaoPlace)
                 if (place != null) {
@@ -32,14 +32,15 @@ class PlaceService (
             }
         }
 
-        if (placesToSave.isNotEmpty()) {
-            val savedPlaces = placeRepository.saveAll(placesToSave).asFlow().toList()
-
-            savedPlaces.forEach { place ->
-                placeEnrichmentService.enrichPlaceData(place)
-            }
+        if (placesToSave.isEmpty()) {
+            return 0
         }
-        return placesToSave.size
+
+        val savedPlaces = placeRepository.saveAll(placesToSave).asFlow().toList()
+        savedPlaces.forEach { place ->
+            placeEnrichmentService.enrichPlaceData(place)
+        }
+        return savedPlaces.size
     }
 
     private fun toPlaceDocument(kakaoPlace: KakaoPlace): Place? {

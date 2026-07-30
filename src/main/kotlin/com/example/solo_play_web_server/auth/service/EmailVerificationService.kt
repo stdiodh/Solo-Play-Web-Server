@@ -48,7 +48,9 @@ class EmailVerificationService(
             throw VerificationCodeException("인증코드가 틀렸습니다.")
         }
 
-        verificationCodeRepository.deleteByEmail(email)
+        if (!verificationCodeRepository.deleteByEmail(email)) {
+            throw VerificationCodeException("인증코드가 만료되었거나 이미 사용되었습니다.")
+        }
 
         val proofToken = signUpProofRepository.issueProof(email)
 

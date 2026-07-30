@@ -21,6 +21,7 @@ data class SignUpRequest(
     @field:NotNull(message = "약관 동의 정보는 필수입니다.")
     val agreement : Agreement,
 
+    @field:NotBlank(message = "가입 증표는 필수 입력 항목입니다.")
     val proofToken : String
 )
 

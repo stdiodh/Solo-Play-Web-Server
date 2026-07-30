@@ -13,11 +13,9 @@ private val logger = KotlinLogging.logger {}
 
 @Service
 class KakaoApiService(
-    private val kakaoWebClient: WebClient
+    private val kakaoWebClient: WebClient,
+    @Value("\${kakao.api.key}") private val kakaoApiKey: String
 ) {
-    @Value("\${kakao.api.key}")
-    private lateinit var kakaoApiKey: String
-
     fun searchPlacesByKeyword(keyword: String, page: Int = 1): Mono<KakaoApiResponse> {
         logger.info { "Kakao API 호출: keyword='$keyword', page=$page" }
 

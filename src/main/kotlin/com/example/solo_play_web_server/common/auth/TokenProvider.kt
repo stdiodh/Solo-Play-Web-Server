@@ -22,7 +22,7 @@ class TokenProvider(
     private lateinit var key: SecretKey
 
     @PostConstruct
-    protected fun init() {
+    internal fun init() {
         key = Keys.hmacShaKeyFor(secretKey.toByteArray(StandardCharsets.UTF_8))
     }
 
@@ -50,8 +50,13 @@ class TokenProvider(
 
     fun validateToken(token: String): Boolean {
         try {
-            parseClaims(token)
-            return true
+            val claims = parseClaims(token)
+            val authorities = claims["auth"] as? String
+            val hasAuthority = authorities
+                ?.split(",")
+                ?.any { it.isNotBlank() }
+                ?: false
+            return !claims.subject.isNullOrBlank() && hasAuthority
         } catch (e: Exception) {
             return false
         }

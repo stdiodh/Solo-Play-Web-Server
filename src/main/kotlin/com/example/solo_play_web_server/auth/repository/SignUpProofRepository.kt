@@ -18,7 +18,9 @@ class SignUpProofRepository(
 
     suspend fun issueProof(email: String): String {
         val proofToken = UUID.randomUUID().toString()
-        save(proofToken, email, TTL)
+        if (!save(proofToken, email, TTL)) {
+            throw IllegalStateException("회원가입 증표 저장에 실패했습니다.")
+        }
         return proofToken
     }
 

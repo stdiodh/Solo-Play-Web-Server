@@ -64,10 +64,13 @@ class MemberService (
 
         val tokens = jwtProvider.generateTokens(member.id!!, member.role)
 
-        refreshTokenRepository.save(
+        val refreshTokenSaved = refreshTokenRepository.save(
             userId = member.id,
             token = tokens.refreshToken
         )
+        if (!refreshTokenSaved) {
+            throw IllegalStateException("Refresh Token 저장에 실패했습니다.")
+        }
 
         return tokens
     }

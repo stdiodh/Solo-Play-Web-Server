@@ -1,0 +1,68 @@
+services:
+  # MONGODB 서비스 정의
+  mongodb:
+    image: mongo  # MONGODB 이미지 및 버전
+    container_name: solo-play-mongodb-container  # 컨테이너 이름
+    volumes:
+      - mongodb_data:/var/lib/mongo # 데이터를 저장할 볼륨 정의
+    networks:
+      - solo_play_net
+
+  # REDIS 서비스 정의
+  redis:
+    image: redis:7-alpine # redis-alpine 이미지
+    container_name: solo-play-redis-container
+    command: redis-server --appendonly yes # AOF(Append Only File) 활성화로 데이터 영속성 보장
+    volumes:
+      - redis_data:/data
+    networks:
+      - solo_play_net
+    ports: # 외부에서 Redis에 직접 접속할 필요가 있을 때 사용 (예: 디버깅용)
+      - "6379:6379"
+
+
+  # Spring Boot 서비스 정의
+  app:
+    image: ${IMAGE_NAME}  # 빌드된 Spring Boot Docker 이미지
+    container_name: solo-play-server-container  # 컨테이너 이름
+    environment:
+      MONGO_DB_NAME: ${DB_NAME}
+      MONGO_DB_URL: ${DB_URL}
+      MONGO_PORT: ${DB_PORT}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: ${REDIS_PORT}
+
+      JWT_SECRET_KEY: ${JWT_SECRET}
+      JWT_ACCESS_TOKEN_EXPIRY_MS: ${ACCESS_EXPIRY}
+      JWT_REFRESH_TOKEN_EXPIRY_MS: ${REFRESH_EXPIRY}
+
+      SPRING_MAIL_USERNAME: ${GOOGLE_ID}
+      SPRING_MAIL_PASSWORD: ${APP_PASSWORD}
+
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+
+      JWT_SECRET: ${JWT_SECRET}
+      GOOGLE_ID: ${GOOGLE_ID}
+      APP_PASSWORD: ${APP_PASSWORD}
+
+      KAKAO_API_KEY: ${KAKAO_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_API_URL: ${GEMINI_API_URL}
+
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - solo_play_net
+    ports:
+      - "8080:8080"
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  solo_play_net:
+    name: solo_play_net
+    external: true

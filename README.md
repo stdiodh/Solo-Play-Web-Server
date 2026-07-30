@@ -10,6 +10,33 @@ SoloPlay는 혼자 시간을 보내는 사용자가 새로운 활동 장소를 �
 | 후속 백엔드 고도화 | 2025.03–2025.10.09 (저장소 커밋 이력 기준) |
 | Backend | [Hood](https://github.com/stdiodh) |
 
+## 주요 화면
+
+아래 이미지는 [솔플 프로젝트 Figma UI/UX 시안](https://www.figma.com/design/rWBAUinnBcfdhEXF2blgWC/%EC%86%94%ED%94%8C-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8?node-id=66-2)에서 발췌했습니다. 서비스 흐름을 설명하기 위한 디자인으로, 이 백엔드 저장소의 현재 구현 범위와는 차이가 있을 수 있습니다.
+
+<table>
+  <tr>
+    <th>로그인·회원가입</th>
+    <th>맞춤 장소·코스 추천</th>
+    <th>주간 장소·코스 랭킹</th>
+  </tr>
+  <tr>
+    <td><img src="docs/images/screens/login.png" width="260" alt="솔플 로그인과 회원가입 화면"></td>
+    <td><img src="docs/images/screens/home-recommendations.png" width="260" alt="사용자 레벨 기반 장소와 코스 추천 메인 화면"></td>
+    <td><img src="docs/images/screens/weekly-ranking.png" width="260" alt="주간 장소와 코스 랭킹 화면"></td>
+  </tr>
+  <tr>
+    <th>장소 상세·연관 코스</th>
+    <th>저장한 코스</th>
+    <th>코스 진행</th>
+  </tr>
+  <tr>
+    <td><img src="docs/images/screens/place-detail.png" width="260" alt="장소 상세 정보와 연관 코스 화면"></td>
+    <td><img src="docs/images/screens/saved-courses.png" width="260" alt="사용자가 저장한 코스 목록 화면"></td>
+    <td><img src="docs/images/screens/course-progress.png" width="260" alt="선택한 코스를 순서대로 진행하는 화면"></td>
+  </tr>
+</table>
+
 ## 담당 영역
 
 - Kakao 장소 수집·도메인 정규화·중복 제거 파이프라인 구현

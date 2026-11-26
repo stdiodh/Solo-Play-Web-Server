@@ -2,17 +2,19 @@
 
 > Kakao Local API에서 1인 활동 장소를 수집하고, Gemini로 짧은 소개와 태그를 보강해 제공하는 Kotlin·Spring WebFlux 백엔드입니다.
 
-SoloPlay는 혼자 시간을 보내는 사용자가 새로운 활동 장소를 탐색하도록 돕는 서비스입니다. 현재 백엔드는 장소 수집·콘텐츠 보강·레벨별 조회와 이메일 인증 기반 회원가입·JWT 인증을 지원합니다.
+SoloPlay는 혼자 시간을 보내는 사용자가 새로운 활동 장소를 탐색하도록 돕는 서비스입니다.
 
 | 구분 | 내용 |
 | --- | --- |
 | 팀 프로젝트 | 2024.10.28–2025.02 |
 | 후속 백엔드 고도화 | 2025.03–2025.10.09 (저장소 커밋 이력 기준) |
 | Backend | [Hood](https://github.com/stdiodh) |
+| 담당 | Kakao 장소 수집·도메인 정규화·중복 제거 파이프라인, 원본 저장과 Gemini 소개·해시태그 보강 분리, Redis 일회성 가입 증표와 JWT 인증 |
+| 결과 | `develop` 기준 테스트 99개 통과, JaCoCo LINE 87%·BRANCH 73% ratchet 적용 |
 
 ## 주요 화면
 
-아래 이미지는 솔플 프로젝트 UI/UX 시안에서 발췌했습니다. 서비스 흐름을 설명하기 위한 디자인으로, 이 백엔드 저장소의 현재 구현 범위와는 차이가 있을 수 있습니다.
+UI/UX 시안에서 발췌한 화면으로, 현재 백엔드 구현 범위와 차이가 있을 수 있습니다.
 
 <table>
   <tr>
@@ -37,35 +39,11 @@ SoloPlay는 혼자 시간을 보내는 사용자가 새로운 활동 장소를 �
   </tr>
 </table>
 
-## 담당 영역
-
-- Kakao 장소 수집·도메인 정규화·중복 제거 파이프라인 구현
-- 원본 저장과 Gemini 소개·해시태그 보강 작업 분리
-- Redis 일회성 가입 증표와 JWT 기반 인증 흐름 구현
-
 ## 장소 수집·콘텐츠 보강 파이프라인
 
 `GET /api/places`는 키워드와 페이지를 받아 Kakao Local API에서 최대 15개 장소를 조회합니다. 주소의 자치구와 Kakao 카테고리를 서비스 값으로 정규화하고, 매핑할 수 없는 데이터는 제외합니다.
 
 신규 장소는 Gemini 호출 전에 MongoDB에 저장합니다. 이후 별도 Coroutine이 장소 이름·카테고리·주소를 바탕으로 약 15자의 한글 소개와 해시태그 3–5개를 생성해 `displayTitle`, `displayTags`에 반영합니다.
-
-### 설계 결정
-
-- Kakao 장소 ID 사전 조회와 `kakaoPlaceId` 고유 인덱스를 함께 사용해 반복 수집을 방지합니다.
-- 원본 저장과 AI 보강을 분리해 Gemini 호출·파싱 실패가 수집 데이터에 영향을 주지 않게 했습니다.
-- Gemini는 추천 순위가 아니라 사용자에게 노출할 소개와 태그만 생성합니다.
-
-## 일회성 가입 증표를 이용한 회원가입
-
-회원가입을 `인증 코드 발송 → 코드 확인과 가입 증표 발급 → 가입 증표 제출`의 세 단계로 분리했습니다.
-
-1. 이메일로 6자리 인증 코드를 발송하고 Redis에 10분간 저장합니다.
-2. 코드가 일치하면 이메일에 대응하는 가입 증표를 발급하고 Redis에 10분간 저장합니다.
-3. 회원가입 시 증표를 Redis `GETDEL`로 조회와 동시에 삭제해 한 번만 사용할 수 있도록 합니다.
-
-비밀번호는 BCrypt로 암호화해 MongoDB에 저장합니다. 로그인 시 Access Token과 Refresh Token을 발급하고, Refresh Token은 설정된 만료 시간 동안 Redis에 보관합니다. 로그아웃은 해당 사용자의 Refresh Token을 삭제합니다.
-
-## 장소 데이터 처리 흐름
 
 ```mermaid
 sequenceDiagram
@@ -89,6 +67,22 @@ sequenceDiagram
     API->>Mongo: displayTitle·displayTags 갱신
 ```
 
+**설계 결정**
+
+- Kakao 장소 ID 사전 조회와 `kakaoPlaceId` 고유 인덱스로 반복 수집을 막습니다.
+- 원본 저장과 AI 보강을 분리해 Gemini 호출·파싱 실패가 수집 데이터에 영향을 주지 않습니다.
+- Gemini는 추천 순위가 아니라 노출용 소개와 태그만 생성합니다.
+
+## 일회성 가입 증표를 이용한 회원가입
+
+회원가입을 `인증 코드 발송 → 코드 확인과 가입 증표 발급 → 가입 증표 제출`의 세 단계로 분리했습니다.
+
+1. 이메일로 6자리 인증 코드를 발송하고 Redis에 10분간 저장합니다.
+2. 코드가 일치하면 이메일에 대응하는 가입 증표를 발급하고 Redis에 10분간 저장합니다.
+3. 회원가입 시 증표를 Redis `GETDEL`로 조회와 동시에 삭제해 한 번만 사용할 수 있도록 합니다.
+
+비밀번호는 BCrypt로 암호화해 MongoDB에 저장합니다. Refresh Token은 만료 시간 동안 Redis에 보관하고, 로그아웃 시 삭제합니다.
+
 ## 관련 코드
 
 - 장소 수집·저장: [KakaoApiService.kt](src/main/kotlin/com/example/solo_play_web_server/place/service/KakaoApiService.kt), [PlaceService.kt](src/main/kotlin/com/example/solo_play_web_server/place/service/PlaceService.kt), [Place.kt](src/main/kotlin/com/example/solo_play_web_server/place/entity/Place.kt)
@@ -105,7 +99,7 @@ sequenceDiagram
 
 ## API
 
-Swagger UI는 애플리케이션 실행 후 `/swagger-ui/index.html`에서 확인할 수 있습니다.
+Swagger UI는 실행 후 `/swagger-ui/index.html`에 있습니다.
 
 | Method | Path | 접근 조건 | 설명 |
 | --- | --- | --- | --- |
@@ -142,7 +136,7 @@ Swagger UI는 애플리케이션 실행 후 `/swagger-ui/index.html`에서 확�
 | JWT·보안 | 만료·변조·서명·role 복원, Bearer 필터와 Reactive SecurityContext |
 | HTTP·권한 | validation 필드 오류, 비즈니스 예외, 인증 역할에 따른 장소·회원 API 계약 |
 
-현재 `develop` 기준 전체 99개 테스트가 통과합니다. JaCoCo는 custom exclusion 없이 전체 프로덕션 코드를 측정하며 LINE 87%, BRANCH 73% ratchet을 `check`에 적용합니다. 최초·최종 covered/missed 수치는 [커버리지 기준선 문서](docs/testing/coverage-baseline.md)에서 확인할 수 있습니다.
+JaCoCo는 custom exclusion 없이 전체 프로덕션 코드를 측정하고, ratchet을 `check`에 적용합니다. 최초·최종 covered/missed 수치는 [커버리지 기준선 문서](docs/testing/coverage-baseline.md)에 있습니다.
 
 ```bash
 ./gradlew clean check --no-daemon
@@ -150,15 +144,7 @@ Swagger UI는 애플리케이션 실행 후 `/swagger-ui/index.html`에서 확�
 
 ## 로컬 실행
 
-### 요구 사항
-
-- JDK 21
-- MongoDB
-- Redis
-
-### 환경 변수
-
-루트의 `.env` 파일 또는 실행 환경에 외부 API·메일·인증 설정을 입력합니다. 실제 비밀값은 저장소에 커밋하지 않습니다.
+JDK 21, MongoDB, Redis가 필요합니다. 루트의 `.env` 파일 또는 실행 환경에 아래 값을 입력하며, 실제 비밀값은 커밋하지 않습니다.
 
 | 변수 | 설명 |
 | --- | --- |
@@ -173,8 +159,6 @@ Swagger UI는 애플리케이션 실행 후 `/swagger-ui/index.html`에서 확�
 | `KAKAO_API_KEY` | Kakao REST API 키 |
 | `GEMINI_API_KEY` | Gemini API 키 |
 | `GEMINI_API_URL` | Gemini 요청 URL |
-
-### 실행
 
 ```bash
 ./gradlew bootRun
